@@ -5,37 +5,20 @@ namespace Planner.Db.Models;
 
 public class SeatingRow : DbBase
 {
-    private string _letter;
-    private int _startingSeat = 1;
     
-    
-    public SeatingRow(string letter)
+    public SeatingRow(string letter, int startingSeat)
     {
         Letter = letter;
+        StartingSeat = startingSeat;
+        RegenerateSeats();
     }
 
-    public int StartingSeat
-    {
-        get => _startingSeat;
-        set
-        {
-            _startingSeat = value;
-            RegenerateSeats();
-        }
-    }
+    public int StartingSeat { get; set; }
 
     [NotMapped]
     private int MaxSeat => StartingSeat + 39;
 
-    public string Letter
-    {
-        get => _letter;
-        set
-        {
-            _letter = value;
-            RegenerateSeats();
-        }
-    }
+    public string Letter { get; set; }
 
     [NotMapped]
     public List<Seat> Seats { get; set; } = new();

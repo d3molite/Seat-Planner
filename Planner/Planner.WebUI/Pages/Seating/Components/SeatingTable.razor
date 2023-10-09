@@ -63,7 +63,7 @@
     
     private string IsDoubleSeat(Seat seat, SeatingRow row)
     {
-        if (seat.SeatNumber % 2 != 0 && HasDoubleSeatAttendee(seat.SeatNumber, row)) return "";
+        if (seat.SeatNumber % 2 == 0 && HasDoubleSeatAttendee(seat.SeatNumber, row)) return "";
         return "display: none";
     }
     

@@ -34,11 +34,11 @@
                     </MudStack>
                 }
             </MudLayout>
-            <MudPaper Elevation="1" Style="width: 15%">
-                <MudStack Justify="Justify.SpaceBetween" Class="h-100">
-                    <MudStack Spacing="3" Class="m-2">
-                        <MudDropZone T="Attendee" Identifier="" Class="h-100 rounded-lg border-1 border-dashed mud-border-lines-default">
-                            <MudText Typo="Typo.h6" Class="mb-4">People List</MudText>
+            <MudPaper Elevation="1" Style="width: 12%">
+                <MudStack Class="h-100">
+                    <MudStack Spacing="3" Class="m-2" Style="max-height: 90%; height: 90%">
+                        <MudDropZone T="Attendee" Identifier="" Class="h-100 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll">
+                            <MudText Typo="Typo.h6" Class="mb-4" Align="Align.Center">Clan Members</MudText>
                         </MudDropZone>
                     </MudStack>
                     <MudButton Color="Color.Success" Class="m-2" Variant="Variant.Filled" @onclick="Save">Save</MudButton>
@@ -85,11 +85,8 @@
 
     private List<SeatingRow> Rows { get; set; } = new List<SeatingRow>()
     {
-        new SeatingRow("J"),
-        new SeatingRow("K"),
-        new ("L"),
-        new ("M"),
-        new ("N"),
+        new SeatingRow("J", 81),
+        new SeatingRow("K", 81)
     };
 
     private List<Attendee> Attendees { get; set; }
@@ -123,7 +120,7 @@
     private bool SeatsInNextZone(string zone)
     {
         var items = zone.Split("-");
-        var nextZone = $"{items[0]}-{int.Parse(items[1]) + 1}";
+        var nextZone = $"{items[0]}-{int.Parse(items[1]) + -1}";
         return Attendees.Any(x => x.SeatIdentifier == nextZone);
     }
 
