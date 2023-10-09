@@ -1,0 +1,27 @@
+﻿@page "/Events"
+@using Planner.Db.Models
+@using Planner.Db.Interfaces
+
+@inject IEventRepository EventRepository;
+
+<h3>Events</h3>
+
+<MudPaper>
+    <MudTable Items="Events" T="Event">
+        <HeaderContent>
+            <MudTh>Year</MudTh>
+        </HeaderContent>
+    </MudTable>
+</MudPaper>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        Events = EventRepository.GetAll();
+        
+        await base.OnInitializedAsync();
+    }
+
+    IEnumerable<Event> Events { get; set; }
+}

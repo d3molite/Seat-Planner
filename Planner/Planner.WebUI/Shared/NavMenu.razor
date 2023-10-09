@@ -1,0 +1,20 @@
+﻿<MudPaper Width="250px" Class="py-3" Elevation="0">
+     <MudNavMenu>
+         <MudText Typo="Typo.h6" Class="px-4">Planner</MudText>
+         <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Plan Your Clan</MudText>
+         <MudDivider Class="my-2"/>
+         <MudNavLink Href="/events">Events</MudNavLink>
+     </MudNavMenu>
+ </MudPaper>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+}
