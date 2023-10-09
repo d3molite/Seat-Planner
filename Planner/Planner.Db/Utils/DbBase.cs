@@ -5,6 +5,7 @@ namespace Planner.Db.Utils;
 
 public class DbBase : IDbItem, IHasOperation
 {
+	[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 	public string Id { get; set; }
 	
 	[NotMapped]

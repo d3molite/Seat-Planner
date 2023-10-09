@@ -1,14 +1,16 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using Planner.Db.Context;
+using Planner.Db.Interfaces;
+using Planner.Db.Repositories;
 using Planner.Db.Utils;
 using Planner.WebUI.Areas.Identity;
 using Planner.WebUI.Data;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration().WriteTo.Trace().WriteTo.Console().CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,9 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddMudServices();
 
 builder.Services.AddDbContext<PlannerDbContext>(options => options.UseSqlite("DataSource=app.db;Cache=Shared"));
+
+builder.Services.AddSingleton<IEventRepository, EventRepository>();
+builder.Services.AddSingleton<IAttendeeRepository, AttendeeRepository>();
 
 var app = builder.Build();
 

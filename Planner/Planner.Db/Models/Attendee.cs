@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Planner.Db.Interfaces;
-using Planner.Db.Utils;
+﻿using Planner.Db.Utils;
 
 namespace Planner.Db.Models;
 
@@ -17,6 +15,8 @@ public class Attendee : DbBase
 	public bool Confirmed { get; set; }
 	
 	public int NumberOfSeats { get; set; }
-	public string SeatIdentifier { get; set; }
-	
+	public string SeatIdentifier { get; set; } = "";
+
+	public List<Event> Events { get; set; } = new();
+
 }

@@ -12,15 +12,16 @@ public class PlannerDbContext : DbContext
 
 	protected override void OnModelCreating(ModelBuilder builder)
 	{
-		
+		builder.Entity<Event>().Navigation(x => x.Attendees).AutoInclude();
+		builder.Entity<Event>().Navigation(x => x.SeatingRows).AutoInclude();
 		base.OnModelCreating(builder);
 	}
 	
+	public DbSet<Event> Events { get; set; }
+	
 	public DbSet<Attendee> Attendees { get; set; }
 	
-	public DbSet<AttendeeGroup> AttendeeGroups { get; set; }
-	
-	public DbSet<Seat> Seats { get; set; }
+	public DbSet<SeatingRow> Rows { get; set; }
 
 	public static PlannerDbContext Create()
 	{

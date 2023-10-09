@@ -4,22 +4,33 @@
 
 @inject IEventRepository EventRepository;
 
-<h3>Events</h3>
+<MudStack Class="h-100" Style="overflow: hidden" Spacing="3">
+    <MudPaper Class="pa-4">
+        <MudStack Row="true" Justify="Justify.SpaceBetween">
+            <MudText>Event Configs</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" Variant="Variant.Outlined" Color="Color.Success"/>
+        </MudStack>
+    </MudPaper>
+    <MudPaper Class="flex-grow-1" Style="overflow-x: scroll">
+        <MudTable Items="Events" T="Event">
+            <HeaderContent>
+                <MudTh>Year</MudTh>
+            </HeaderContent>
+        </MudTable>
+    </MudPaper>
+    <MudPaper Class="pa-4">
+        <MudStack Row="true" Justify="Justify.FlexEnd">
+            <MudButton Color="Color.Success" Variant="Variant.Filled">Save</MudButton>
+        </MudStack>
+    </MudPaper>
+</MudStack>
 
-<MudPaper>
-    <MudTable Items="Events" T="Event">
-        <HeaderContent>
-            <MudTh>Year</MudTh>
-        </HeaderContent>
-    </MudTable>
-</MudPaper>
 
 @code {
 
     protected override async Task OnInitializedAsync()
     {
         Events = EventRepository.GetAll();
-        
         await base.OnInitializedAsync();
     }
 

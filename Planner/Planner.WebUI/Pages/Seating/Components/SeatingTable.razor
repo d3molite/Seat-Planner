@@ -1,0 +1,70 @@
+﻿@using Planner.Db.Models
+@using System.Text
+<MudPaper Style="width: 9%;" Class="h-50">
+    <MudStack Row="true" Class="h-100" Justify="Justify.SpaceAround">
+        <MudDropZone T="Attendee"
+                     Style="@GetSeatStyle(FirstSeat, Row)"
+                     Class="h-100 rounded-lg border-1 border-solid mud-border-lines-default flex-row"
+                     Identifier="@FirstSeat.SeatIdentifier">
+            <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="pa-1 w-100">
+                <MudText Typo="Typo.body1" >@FirstSeat.SeatIdentifier</MudText>
+                <MudText Typo="Typo.body1" Style="@IsDoubleSeat(FirstSeat, Row)">@SecondSeat.SeatIdentifier</MudText>
+            </MudStack>
+            <MudDivider/>
+        </MudDropZone>
+        <MudDropZone T="Attendee"
+                     Style="@GetSeatStyle(SecondSeat, Row)"
+                     Class="h-100 rounded-lg border-1 border-solid mud-border-lines-default flex-row"
+                     Identifier="@SecondSeat.SeatIdentifier">
+            <MudStack Row="true" Justify="Justify.SpaceEvenly" Class="pa-1">
+                <MudText Typo="Typo.body1">@SecondSeat.SeatIdentifier</MudText>
+            </MudStack>
+            <MudDivider/>
+        </MudDropZone>
+    </MudStack>
+</MudPaper>
+
+@code {
+    
+    [Parameter]
+    public required Seat FirstSeat { get; set; }
+    
+    [Parameter]
+    public required Seat SecondSeat { get; set; }
+    
+    [Parameter]
+    public required SeatingRow Row { get; set; }
+    
+    [Parameter]
+    public required List<Attendee> Attendees { get; set; }
+    
+    
+    private string GetSeatStyle(Seat seat, SeatingRow row)
+    {
+        var sb = new StringBuilder();
+
+        if (seat.SeatNumber % 2 != 0 && HasDoubleSeatAttendee(seat.SeatNumber, row))
+            sb.Append("width: 100%; ");
+        else if (seat.SeatNumber % 2 == 0 && HasDoubleSeatAttendee(seat.SeatNumber - 1, row)) 
+            sb.Append("display: none;");
+        else 
+            sb.Append("width: 50%; max-width: 50%");
+        
+        return sb.ToString();
+    }
+    
+    private bool HasDoubleSeatAttendee(int seatNumber, SeatingRow row)
+    {
+        var identifier = $"{row.Letter}-{seatNumber}";
+        var attendee = Attendees.FirstOrDefault(x => x.SeatIdentifier == identifier);
+        if (attendee is null) return false;
+        return attendee.NumberOfSeats > 1;
+    }
+    
+    private string IsDoubleSeat(Seat seat, SeatingRow row)
+    {
+        if (seat.SeatNumber % 2 != 0 && HasDoubleSeatAttendee(seat.SeatNumber, row)) return "";
+        return "display: none";
+    }
+    
+}
