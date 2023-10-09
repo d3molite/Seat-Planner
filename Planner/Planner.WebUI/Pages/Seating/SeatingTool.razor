@@ -1,0 +1,127 @@
+﻿@page "/seating"
+@using Planner.Db.Models
+@using Planner.WebUI.LocalModels
+@using System.Text
+
+<MudDropContainer 
+    Class="flex-grow-1" 
+    T="Attendee" 
+    Items="Attendees"
+    ItemsSelector="@((item, dropzone) => item.SeatIdentifier == dropzone)" 
+    ItemDropped="ItemUpdated"
+    CanDrop="(attendee, s) => CanDrop(attendee, s)"
+    NoDropClass="mud-border-error"
+    CanDropClass="mud-border-success">
+    <ChildContent>
+        <MudStack Row="true" Class="h-100" Style="border: 1px solid red;">
+            
+            <MudLayout Class="d-flex flex-column justify-content-evenly flex-grow-1 align-content-center" Style="overflow-x: scroll;">
+                
+                @* Add an entire Seating Row Here *@
+                @foreach (var row in Rows)
+                {
+                    <MudStack Class="w-100 flex-wrap" Style="height: 20%;" Row="true" Spacing="3">
+                        @for (var i = 1; i <= row.Seats.Count() - 1; i += 2)
+                        {
+                            var secondSeat = row.Seats[i];
+                            var firstSeat = row.Seats[i - 1];
+
+                            @* One Table *@
+                            <MudPaper Style="width: 9%;" Class="h-50">
+                                <MudStack Row="true" Class="h-100">
+                                    <MudDropZone T="Attendee"
+                                                 Style="@GetSeatStyle(firstSeat, row)"
+                                                 Class="h-100 rounded-lg border-2 border-solid mud-border-lines-default flex-row"
+                                                 Identifier="@firstSeat.SeatIdentifier">
+                                        <div>@firstSeat.SeatIdentifier</div>
+                                    </MudDropZone>
+                                    <MudDropZone T="Attendee"
+                                                 Style="@GetSeatStyle(secondSeat, row)"
+                                                 Class="h-100 rounded-lg border-2 border-solid mud-border-lines-default flex-row"
+                                                 Identifier="@secondSeat.SeatIdentifier">
+                                        <div>@secondSeat.SeatIdentifier</div>
+                                    </MudDropZone>
+                                </MudStack>
+                            </MudPaper>
+                        }
+                    </MudStack>
+                }
+            </MudLayout>
+            <MudPaper Elevation="1">
+                <MudStack Spacing="3" Class="m-2">
+                    <MudDropZone T="Attendee" Identifier="People">
+                        <MudText Typo="Typo.h6" Class="mb-4">People List</MudText>
+                    </MudDropZone>
+                </MudStack>
+            </MudPaper>
+        </MudStack>
+    </ChildContent>
+    <ItemRenderer>
+        <MudPaper Elevation="25" Style="width: 100%;">@context.NickName @context.NumberOfSeats</MudPaper>
+    </ItemRenderer>
+</MudDropContainer>
+
+
+@code {
+    
+    private string GetSeatStyle(SeatingSeat seat, SeatingRow row)
+    {
+        var sb = new StringBuilder();
+
+        if (seat.SeatNumber % 2 != 0 && HasDoubleSeatAttendee(seat.SeatNumber, row))
+            sb.Append("width: 100%; ");
+        else if (seat.SeatNumber % 2 == 0 && HasDoubleSeatAttendee(seat.SeatNumber - 1, row)) 
+            sb.Append("display: none;");
+        else 
+            sb.Append("width: 50%");
+        
+        return sb.ToString();
+    }
+
+    private bool HasDoubleSeatAttendee(int seatNumber, SeatingRow row)
+    {
+        var identifier = $"{row.Letter}-{seatNumber}";
+        var attendee = Attendees.FirstOrDefault(x => x.SeatIdentifier == identifier);
+        if (attendee is null) return false;
+        return attendee.NumberOfSeats > 1;
+    }
+    
+    protected override void OnInitialized()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private List<SeatingRow> Rows { get; set; } = new List<SeatingRow>()
+    {
+        new SeatingRow("I"),
+    };
+
+    private List<Attendee> Attendees = new()
+    {
+        new() { NickName = "Hans", SeatIdentifier = "People", NumberOfSeats = 2},
+        new() { NickName = "Franz", SeatIdentifier = "People", NumberOfSeats = 2},
+        new() { NickName = "Detlef", SeatIdentifier = "People", NumberOfSeats = 1},
+        new() { NickName = "Maggus", SeatIdentifier = "People", NumberOfSeats = 1},
+        new() { NickName = "Günni", SeatIdentifier = "People", NumberOfSeats = 2}
+    };
+
+    private void ItemUpdated(MudItemDropInfo<Attendee> dropItem)
+    {
+        dropItem.Item.SeatIdentifier = dropItem.DropzoneIdentifier;
+        InvokeAsync(StateHasChanged);
+    }
+    
+
+    private bool CanDrop(Attendee item, string dropName)
+    {
+        if (dropName == "People") return true;
+        if (item.NumberOfSeats > 1 && int.Parse(dropName.Split("-")[1]) % 2 == 0) return false;
+        if (item.NumberOfSeats == 1 && SeatsInZone(dropName) > 1) return false;
+        return true;
+    }
+
+    private int SeatsInZone(string zone)
+    {
+        return Attendees.Where(x => x.SeatIdentifier == zone).Select(x => x.NumberOfSeats).Sum();
+    }
+}

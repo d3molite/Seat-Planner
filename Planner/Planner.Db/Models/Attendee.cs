@@ -16,6 +16,7 @@ public class Attendee : DbBase
 	
 	public bool Confirmed { get; set; }
 	
-	public IEnumerable<Seat> Seats { get; set; }
+	public int NumberOfSeats { get; set; }
+	public string SeatIdentifier { get; set; }
 	
 }
