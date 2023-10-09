@@ -22,11 +22,11 @@
                 @* Add an entire Seating Row Here *@
                 @foreach (var row in Rows)
                 {
-                    <MudStack Class="w-100 flex-wrap" Style="height: 20%;" Row="true" Spacing="3">
+                    <MudStack Class="w-100 flex-wrap" Style="height: 20%;" Row="true" Spacing="3" Reverse="true" Justify="Justify.Center">
                         @for (var i = 1; i <= row.Seats.Count() - 1; i += 2)
                         {
-                            var secondSeat = row.Seats[i];
-                            var firstSeat = row.Seats[i - 1];
+                            var secondSeat = row.Seats[i - 1];
+                            var firstSeat = row.Seats[i];
 
                             @* One Table *@
                             <SeatingTable FirstSeat="@firstSeat" SecondSeat="@secondSeat" Row="@row" Attendees="@Attendees"/>
@@ -47,9 +47,10 @@
         </MudStack>
     </ChildContent>
     <ItemRenderer>
-        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Class="h-100 w-100 mt-2">
-            <MudText Typo="Typo.body1">@context.NickName</MudText>
-            <MudText Typo="Typo.body2">@context.FirstName (@context.NumberOfSeats Seats)</MudText>
+        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden" Spacing="1">
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.NickName</MudText>
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.FirstName</MudText>
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">(@context.NumberOfSeats)</MudText>
         </MudStack>
     </ItemRenderer>
 </MudDropContainer>
@@ -80,6 +81,7 @@
     private List<SeatingRow> Rows { get; set; } = new List<SeatingRow>()
     {
         new SeatingRow("J"),
+        new SeatingRow("K"),
     };
 
     private List<Attendee> Attendees { get; set; }
@@ -97,7 +99,7 @@
         if (SeatsInZone(dropName)) return false;
         switch (item.NumberOfSeats)
         {
-            case > 1 when IsEvenSeat(dropName):
+            case > 1 when !IsEvenSeat(dropName):
             case > 1 when SeatsInNextZone(dropName):
                 return false;
             default:

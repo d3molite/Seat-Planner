@@ -43,9 +43,9 @@
     {
         var sb = new StringBuilder();
 
-        if (seat.SeatNumber % 2 != 0 && HasDoubleSeatAttendee(seat.SeatNumber, row))
+        if (seat.SeatNumber % 2 == 0 && HasDoubleSeatAttendee(seat.SeatNumber, row))
             sb.Append("width: 100%; ");
-        else if (seat.SeatNumber % 2 == 0 && HasDoubleSeatAttendee(seat.SeatNumber - 1, row)) 
+        else if (seat.SeatNumber % 2 != 0 && HasDoubleSeatAttendee(seat.SeatNumber + 1, row)) 
             sb.Append("display: none;");
         else 
             sb.Append("width: 50%; max-width: 50%");
