@@ -4,29 +4,21 @@
 <MudDialogProvider/>
 <MudSnackbarProvider/>
 
-<PageTitle>ClanPlan</PageTitle>
+<PageTitle>pLAN</PageTitle>
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-        <MudText Typo="Typo.h5" Class="ml-3">ClanPlan</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+        <MudText Typo="Typo.h5" Class="ml-3">pLAN</MudText>
+        <MudStack Row="true" Justify="Justify.SpaceEvenly">
+            <MudNavLink Href="/Planner">zum Planer</MudNavLink>
+        </MudStack>
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu/>
-    </MudDrawer>
     <MudMainContent Style="height: 100%">
         <div class="main-content d-flex flex-column">
             @Body
         </div>
     </MudMainContent>
 </MudLayout>
-@code {
-    bool _drawerOpen = true;
 
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
+@code {
 }

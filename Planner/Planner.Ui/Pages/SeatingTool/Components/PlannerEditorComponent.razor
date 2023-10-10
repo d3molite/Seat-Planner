@@ -1,0 +1,67 @@
+﻿@using Planner.Data.Interfaces
+@using Planner.Data.Models
+
+<MudPaper Elevation="1" Style="width: 10vw">
+    <MudStack Class="h-100">
+        <MudText Typo="Typo.body2" Align="Align.Center">Einstellungen</MudText>
+        <MudDivider Class="flex-grow-0"/>
+        
+        <MudStack Class="flex-grow-1">
+            <MudText MudText Typo="Typo.body2" Align="Align.Center">Sitzreihen (@Rows?.Count)</MudText>
+            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll">
+                <ItemRenderer>
+                    <MudText>@context.NickName</MudText>
+                </ItemRenderer>
+            </MudDropZone>
+            <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" @onclick="AddNewRow">Neu</MudButton>
+        </MudStack>
+        @* <MudDropZone T="Attendee" Identifier="AAAA" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll"> *@
+        @* </MudDropZone> *@
+        <MudDivider Class="flex-grow-0"/>
+        <MudStack Class="flex-grow-1">
+            <MudText MudText Typo="Typo.body2" Align="Align.Center">Clan Mitglieder (@Attendees?.Count)</MudText>
+            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll">
+                <ItemRenderer>
+                    <MudText>@context.NickName</MudText>
+                </ItemRenderer>
+            </MudDropZone>
+            <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" @onclick="AddNewAttendee">Neu</MudButton>
+        </MudStack>
+        <MudDivider Class="flex-grow-0"/>
+        <MudButton Color="Color.Success" Style="margin: 0 10% 7% 5%;" Variant="Variant.Outlined" @onclick="Save">Speichern</MudButton>
+    </MudStack>
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public List<SeatingRow> Rows { get; set; }
+    
+    [Parameter]
+    public List<Attendee> Attendees { get; set; }
+    
+    [Parameter]
+    public EventCallback OnRowsModified { get; set; }
+    
+    [Parameter]
+    public EventCallback OnSaveTriggered { get; set; }
+
+    private async Task Save()
+    {
+        await OnSaveTriggered.InvokeAsync(null);
+    }
+
+    private async Task AddNewAttendee()
+    {
+        Attendees.Add(new Attendee(){NickName = "Player"});
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddNewRow()
+    {
+        Rows.Add(new SeatingRow("A", 1));
+        await OnRowsModified.InvokeAsync(null);
+        await InvokeAsync(StateHasChanged);
+    }
+
+}

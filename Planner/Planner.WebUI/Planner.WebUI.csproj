@@ -8,10 +8,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.11"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.11"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.11"/>
@@ -23,13 +19,20 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Planner.Data\Planner.Data.csproj" />
       <ProjectReference Include="..\Planner.Db\Planner.Db.csproj" />
+      <ProjectReference Include="..\Planner.Ui\Planner.Ui.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="LocalModels\" />
       <Folder Include="Pages\Attendees\Components\" />
+      <Folder Include="Pages\Seating\Components\" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\LogOut.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Shared\_LoginPartial.cshtml" />
+    </ItemGroup>
 
 </Project>

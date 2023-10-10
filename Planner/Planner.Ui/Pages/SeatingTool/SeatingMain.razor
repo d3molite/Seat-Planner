@@ -1,0 +1,59 @@
+﻿@page "/Planner"
+@using Planner.Data.Models
+@using Planner.Data.Interfaces
+@using Planner.Ui.Pages.SeatingTool.Components
+
+@inject ISeatingConfigurationService SeatingConfigurationService
+@inject ISnackbar Snackbar
+
+<PlannerPageContent Rows="@Rows" Attendees="@Attendees" OnSaveTriggered="Save" @ref="_pageContent"/>
+
+@code {
+
+    private PlannerPageContent _pageContent = null!;
+
+    private List<SeatingRow> Rows { get; set; }
+
+    private List<Attendee> Attendees { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Rows = new();
+        Attendees = new();
+        await base.OnInitializedAsync();
+        await OnAfter(true);
+    }
+
+    private async Task Save()
+    {
+        await SeatingConfigurationService.Save(Rows, Attendees);
+        Snackbar.Add("Änderungen gespeichert.", Severity.Success);
+    }
+
+    protected async Task OnAfter(bool firstRender)
+    {
+        if (!firstRender) return;
+        // await SeatingConfigurationService.Clear();
+        var rowResult = await SeatingConfigurationService.LoadRows();
+        var attendeeResult = await SeatingConfigurationService.LoadAttendees();
+
+        switch (rowResult is {Success:true, Value: not null})
+        {
+            case true when attendeeResult is {Success:true, Value: not null}:
+                Snackbar.Add("Daten erfolgreich geladen.", Severity.Success);
+                break;
+
+            case false:
+                Snackbar.Add("Sitzreihen neu Initialisiert");
+                break;
+        }
+        if (attendeeResult is not {Success:true, Value: not null}) Snackbar.Add("Teilnehmer neu Initialisiert");
+
+        Rows = rowResult is {Success: true} ? SeatingConfigurationService.DeserializeRows(rowResult.Value!) : new List<SeatingRow>();
+        Attendees = attendeeResult is {Success: true, Value: not null} ? SeatingConfigurationService.DeserializeAttendees(attendeeResult.Value) : new List<Attendee>();
+
+        // await base.OnAfterRenderAsync(firstRender);
+        await _pageContent.LoadComplete();
+    }
+
+}

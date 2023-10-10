@@ -1,0 +1,95 @@
+﻿@using Planner.Data.Models
+
+<MudDropContainer
+    Class="flex-grow-1"
+    T="Attendee"
+    Items="Attendees"
+    ItemsSelector="@((item, dropzone) => item.SeatIdentifier == dropzone)"
+    ItemDropped="ItemUpdated"
+    CanDrop="(attendee, s) => CanDrop(attendee, s)"
+    NoDropClass="mud-border-error"
+    CanDropClass="mud-border-success">
+    <ChildContent>
+        <MudStack Row="true" Class="h-100">
+            <RowsViewerComponent @ref="_rowsViewer" Rows="@Rows" Attendees="@Attendees"/>
+            <PlannerEditorComponent Rows="@Rows" Attendees="@Attendees"
+                                    OnSaveTriggered="async() => await Save()" 
+                                    OnRowsModified="ReloadViewer"/>
+        </MudStack>
+    </ChildContent>
+    <ItemRenderer>
+        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden pt-2" Spacing="1">
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.NickName</MudText>
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.FirstName</MudText>
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">(@context.NumberOfSeats)</MudText>
+        </MudStack>
+    </ItemRenderer>
+</MudDropContainer>
+
+@code{
+    
+    private RowsViewerComponent _rowsViewer = null!;
+
+    [Parameter]
+    public List<SeatingRow> Rows { get; set; }
+    
+    [Parameter]
+    public List<Attendee> Attendees { get; set; }
+    
+    [Parameter]
+    public EventCallback OnSaveTriggered { get; set; }
+
+    public async Task LoadComplete()
+    {
+        await _rowsViewer.Refresh();
+    }
+
+    private async Task ReloadViewer()
+    {
+        await _rowsViewer.Refresh();
+    }
+
+    private async Task Save()
+    {
+        await OnSaveTriggered.InvokeAsync(null);
+    }
+
+    private void ItemUpdated(MudItemDropInfo<Attendee> dropItem)
+    {
+        dropItem.Item.SeatIdentifier = dropItem.DropzoneIdentifier;
+    }
+
+    private bool CanDrop(Attendee item, string dropName)
+    {
+        if (dropName == "") return true;
+        if (SeatsInZone(dropName)) return false;
+        switch (item.NumberOfSeats)
+        {
+            case > 1 when !IsEvenSeat(dropName):
+            case > 1 when SeatsInNextZone(dropName):
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    private bool SeatsInZone(string zone)
+    {
+        return Attendees.Any(x => x.SeatIdentifier == zone);
+    }
+
+    private bool SeatsInNextZone(string zone)
+    {
+        var items = zone.Split("-");
+        var nextZone = $"{items[0]}-{int.Parse(items[1]) + -1}";
+        return Attendees.Any(x => x.SeatIdentifier == nextZone);
+    }
+
+    private static bool IsEvenSeat(string zone)
+    {
+        return int.Parse(zone.Split("-")[1]) % 2 == 0;
+    }
+
+    
+
+}
