@@ -2,58 +2,127 @@
 @using Planner.Data.Models
 @using Planner.Data.Interfaces
 @using Planner.Ui.Pages.SeatingTool.Components
+@using Planner.Ui.Pages.SeatingTool.Dialog
 
 @inject ISeatingConfigurationService SeatingConfigurationService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
-<PlannerPageContent Rows="@Rows" Attendees="@Attendees" OnSaveTriggered="Save" @ref="_pageContent"/>
+<MudDropContainer
+    Class="flex-grow-1 h-100"
+    T="Attendee"
+    Items="Attendees"
+    ItemsSelector="@((item, dropzone) => item.SeatIdentifier == dropzone)"
+    ItemDropped="ItemUpdated"
+    CanDrop="(attendee, s) => CanDrop(attendee, s)"
+    NoDropClass="mud-border-error"
+    CanDropClass="mud-border-success">
+    <ChildContent>
+        <MudStack Row="true" Class="h-100">
+            <RowsViewerComponent SeatingConfigurationService="@SeatingConfigurationService"/>
+            <PlannerEditorComponent SeatingConfigurationService="@SeatingConfigurationService"/>
+        </MudStack>
+    </ChildContent>
+    <ItemRenderer>
+        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden pt-2" Spacing="1" @ondblclick="@(() => EditAttendee(context))">
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.NickName</MudText>
+            <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.FirstName</MudText>
+            <MudStack Class="w-100 pl-4 pr-4" Row="true" Justify="SelectJustify(context)">
+                <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.LeftSeat</MudText>
+                @if (@context.NumberOfSeats > 1)
+                {
+                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.RightSeat</MudText>
+                }
+            </MudStack>
+        </MudStack>
+    </ItemRenderer>
+</MudDropContainer>
 
 @code {
 
-    private PlannerPageContent _pageContent = null!;
-
-    private List<SeatingRow> Rows { get; set; }
-
-    private List<Attendee> Attendees { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
-        Rows = new();
-        Attendees = new();
+        SeatingConfigurationService.SeatingDataUpdated += async(_, _) => await InvokeAsync(StateHasChanged);
         await base.OnInitializedAsync();
-        await OnAfter(true);
     }
 
-    private async Task Save()
+    private Justify SelectJustify(Attendee attendee)
     {
-        await SeatingConfigurationService.Save(Rows, Attendees);
-        Snackbar.Add("Änderungen gespeichert.", Severity.Success);
+        return attendee.NumberOfSeats == 1 ? Justify.Center : Justify.SpaceAround;
     }
+    
+    private List<Attendee> Attendees => SeatingConfigurationService.Attendees;
 
-    protected async Task OnAfter(bool firstRender)
+    private void ItemUpdated(MudItemDropInfo<Attendee> dropItem)
     {
-        if (!firstRender) return;
-        // await SeatingConfigurationService.Clear();
-        var rowResult = await SeatingConfigurationService.LoadRows();
-        var attendeeResult = await SeatingConfigurationService.LoadAttendees();
-
-        switch (rowResult is {Success:true, Value: not null})
+        if (SeatsInZone(dropItem.DropzoneIdentifier))
         {
-            case true when attendeeResult is {Success:true, Value: not null}:
-                Snackbar.Add("Daten erfolgreich geladen.", Severity.Success);
-                break;
-
-            case false:
-                Snackbar.Add("Sitzreihen neu Initialisiert");
-                break;
+            var seat = FirstSeatInZone(dropItem.DropzoneIdentifier);
+            seat.SeatIdentifier = dropItem.Item.SeatIdentifier;
         }
-        if (attendeeResult is not {Success:true, Value: not null}) Snackbar.Add("Teilnehmer neu Initialisiert");
-
-        Rows = rowResult is {Success: true} ? SeatingConfigurationService.DeserializeRows(rowResult.Value!) : new List<SeatingRow>();
-        Attendees = attendeeResult is {Success: true, Value: not null} ? SeatingConfigurationService.DeserializeAttendees(attendeeResult.Value) : new List<Attendee>();
-
-        // await base.OnAfterRenderAsync(firstRender);
-        await _pageContent.LoadComplete();
+        
+        dropItem.Item.SeatIdentifier = dropItem.DropzoneIdentifier;
     }
 
+    private bool CanDrop(Attendee item, string dropName)
+    {
+        if (dropName == "") return true;
+
+        if (SeatsInZone(dropName))
+        {
+            var seat = FirstSeatInZone(dropName);
+            return seat.NumberOfSeats == 1 && item.NumberOfSeats == 1;
+        }
+        
+        switch (item.NumberOfSeats)
+        {
+            case > 1 when !IsEvenSeat(dropName):
+            case > 1 when SeatsInNextZone(dropName):
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    private bool SeatsInZone(string zone)
+    {
+        return Attendees.Any(x => x.SeatIdentifier == zone);
+    }
+
+    private Attendee FirstSeatInZone(string zone)
+    {
+        return Attendees.First(x => x.SeatIdentifier == zone);
+    }
+
+    private bool SeatsInNextZone(string zone)
+    {
+        var items = zone.Split("-");
+        var nextZone = $"{items[0]}-{int.Parse(items[1]) + -1}";
+        return Attendees.Any(x => x.SeatIdentifier == nextZone);
+    }
+
+    private static bool IsEvenSeat(string zone)
+    {
+        return int.Parse(zone.Split("-")[1]) % 2 == 0;
+    }
+    
+    private async Task EditAttendee(Attendee attendee)
+    {
+        var dialogAttendee = attendee.Clone();
+        
+        var parameters = new DialogParameters<AttendeeEditDialog>
+        {
+            {
+                x => x.Attendee, dialogAttendee
+            }
+        };
+
+        var dialog = await DialogService.ShowAsync<AttendeeEditDialog>("Teilnehmer bearbeiten", parameters);
+        var result = await dialog.Result;
+
+        if (result.Canceled) return;
+        
+        attendee.UpdateSelf((Attendee)result.Data);
+        SeatingConfigurationService.UpdatedExternal();
+    }
 }

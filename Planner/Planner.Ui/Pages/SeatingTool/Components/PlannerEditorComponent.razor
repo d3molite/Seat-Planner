@@ -1,67 +1,164 @@
 ﻿@using Planner.Data.Interfaces
 @using Planner.Data.Models
+@using Microsoft.AspNetCore.Connections
+@using System.ComponentModel.Design.Serialization
+@using Planner.Data.Enums
+@using Planner.Ui.Pages.SeatingTool.Dialog
 
-<MudPaper Elevation="1" Style="width: 10vw">
-    <MudStack Class="h-100">
-        <MudText Typo="Typo.body2" Align="Align.Center">Einstellungen</MudText>
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudPaper Elevation="1" Style="width: 220px" Class="h-100">
+    <MudStack Class="h-100" Spacing="2" Justify="Justify.SpaceBetween">
+        <MudText Typo="Typo.body2" Align="Align.Center" Class="pt-3">Konfiguration</MudText>
         <MudDivider Class="flex-grow-0"/>
-        
-        <MudStack Class="flex-grow-1">
+        <MudStack Class="flex-grow-1" Style="max-height: 40%;">
             <MudText MudText Typo="Typo.body2" Align="Align.Center">Sitzreihen (@Rows?.Count)</MudText>
-            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll">
-                <ItemRenderer>
-                    <MudText>@context.NickName</MudText>
-                </ItemRenderer>
-            </MudDropZone>
-            <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" @onclick="AddNewRow">Neu</MudButton>
+            <MudDataGrid 
+                T="SeatingRow" 
+                Items="Rows" 
+                Class="w-100 flex-grow-1" 
+                EditMode="DataGridEditMode.Form" 
+                ReadOnly="false" Dense="true" EditTrigger="DataGridEditTrigger.Manual" CommittedItemChanges="ChangesCommitted">
+                <Columns>
+                    <TemplateColumn Title="Reihe">
+                        <EditTemplate>
+                            <MudStack>
+                                <MudTextField @bind-Value="context.Item.Letter" Label="Buchstabe (Reihe)"/>
+                                <MudNumericField T="int" @bind-Value="context.Item.StartingSeat" Label="Startnummer der Reihe"/>
+                                <MudSelect @bind-Value="context.Item.CarpetPosition" Label="Relaxzone?">
+                                    <MudSelectItem Value="CarpetPosition.None">Keine</MudSelectItem>
+                                    <MudSelectItem Value="CarpetPosition.North">Oben</MudSelectItem>
+                                    <MudSelectItem Value="CarpetPosition.South">Unten</MudSelectItem>
+                                    <MudSelectItem Value="CarpetPosition.Both">Beides</MudSelectItem>
+                                </MudSelect>
+                            </MudStack>
+                        </EditTemplate>
+                        <CellTemplate>
+                            <MudText>@context.Item.Letter-@context.Item.StartingSeat</MudText>
+                        </CellTemplate>
+                    </TemplateColumn>
+                    <TemplateColumn>
+                        <CellTemplate>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@context.Actions.StartEditingItemAsync"/>
+                            <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Size="Size.Small" @onclick="() => RemoveRow(context.Item)"/>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+            </MudDataGrid>
+            <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" Variant="Variant.Outlined" @onclick="AddNewRow">Neu</MudButton>
         </MudStack>
-        @* <MudDropZone T="Attendee" Identifier="AAAA" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll"> *@
-        @* </MudDropZone> *@
         <MudDivider Class="flex-grow-0"/>
-        <MudStack Class="flex-grow-1">
+        <MudStack Class="flex-grow-1" Style="max-height: 40%;">
             <MudText MudText Typo="Typo.body2" Align="Align.Center">Clan Mitglieder (@Attendees?.Count)</MudText>
-            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll">
+            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll;">
                 <ItemRenderer>
-                    <MudText>@context.NickName</MudText>
+                    <MudStack Class="w-100 p-1" Row="true" AlignItems="AlignItems.Center">
+                        <MudStack Spacing="1" Class="w-75">
+                            <MudText Align="Align.Center" Typo="Typo.body1">@context.NickName</MudText>
+                            <MudStack Row="true" Justify="Justify.Center">
+                                @if (context.FirstName != null)
+                                {
+                                    <MudText Align="Align.Center">@context.FirstName</MudText>
+                                }
+                                <MudText Align="Align.Center" Typo="Typo.body2">@context.NumberOfSeats Sitz@($"{(context.NumberOfSeats > 1 ? 'e' : ' ')}")</MudText>
+                            </MudStack>
+                        </MudStack>
+                        <MudStack Row="true" Class="h-50">
+                             <MudIconButton Icon="@Icons.Material.Outlined.Edit" Size="Size.Small" @onclick="() => EditAttendee(context)"/>
+                             <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Size="Size.Small" @onclick="() => RemoveAttendee(context)"/>
+                        </MudStack>
+                    </MudStack>
+                    <MudDivider/>
                 </ItemRenderer>
             </MudDropZone>
-            <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" @onclick="AddNewAttendee">Neu</MudButton>
+            <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" Variant="Variant.Outlined" @onclick="AddNewAttendee">Neu</MudButton>
         </MudStack>
         <MudDivider Class="flex-grow-0"/>
-        <MudButton Color="Color.Success" Style="margin: 0 10% 7% 5%;" Variant="Variant.Outlined" @onclick="Save">Speichern</MudButton>
+        <MudStack Row="true" Class="p-2">
+            <MudButton Color="Color.Success" Style="" Variant="Variant.Outlined" @onclick="Save">Speichern</MudButton>
+            <MudButton Color="Color.Primary" Style="" Variant="Variant.Outlined" @onclick="Load">Laden</MudButton>
+        </MudStack>
+        <MudStack Row="true" Class="pb-3 pt-0" Justify="Justify.Center">
+            <MudButton Color="Color.Error" Variant="Variant.Outlined" @onclick="Clear">Alles Löschen</MudButton>
+        </MudStack>
     </MudStack>
 </MudPaper>
 
 @code {
 
-    [Parameter]
-    public List<SeatingRow> Rows { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        SeatingConfigurationService.SeatingDataUpdated += async(_, _) => await InvokeAsync(StateHasChanged);
+        await base.OnInitializedAsync();
+    }
+
+    public List<SeatingRow> Rows => SeatingConfigurationService.Rows;
+
+    public List<Attendee> Attendees => SeatingConfigurationService.Attendees;
     
     [Parameter]
-    public List<Attendee> Attendees { get; set; }
-    
-    [Parameter]
-    public EventCallback OnRowsModified { get; set; }
-    
-    [Parameter]
-    public EventCallback OnSaveTriggered { get; set; }
+    public ISeatingConfigurationService SeatingConfigurationService { get; set; }
+
+    private async Task RemoveRow(SeatingRow row)
+    {
+        SeatingConfigurationService.RemoveRow(row);
+    }
+
+    private async Task RemoveAttendee(Attendee attendee)
+    {
+        SeatingConfigurationService.RemoveAttendee(attendee);
+    }
+
+    private async Task EditAttendee(Attendee attendee)
+    {
+        var dialogAttendee = attendee.Clone();
+        
+        var parameters = new DialogParameters<AttendeeEditDialog>
+        {
+            {
+                x => x.Attendee, dialogAttendee
+            }
+        };
+
+        var dialog = await DialogService.ShowAsync<AttendeeEditDialog>("Teilnehmer bearbeiten", parameters);
+        var result = await dialog.Result;
+
+        if (result.Canceled) return;
+        
+        attendee.UpdateSelf((Attendee)result.Data);
+        SeatingConfigurationService.UpdatedExternal();
+    }
 
     private async Task Save()
     {
-        await OnSaveTriggered.InvokeAsync(null);
+        await SeatingConfigurationService.Save(Snackbar);
+    }
+
+    private async Task Load()
+    {
+        await SeatingConfigurationService.Load(Snackbar);
     }
 
     private async Task AddNewAttendee()
     {
-        Attendees.Add(new Attendee(){NickName = "Player"});
-        await InvokeAsync(StateHasChanged);
+        SeatingConfigurationService.AddAttendee();
     }
 
     private async Task AddNewRow()
     {
-        Rows.Add(new SeatingRow("A", 1));
-        await OnRowsModified.InvokeAsync(null);
-        await InvokeAsync(StateHasChanged);
+        SeatingConfigurationService.AddRow();
+    }
+
+    private async Task Clear()
+    {
+        await SeatingConfigurationService.Clear();
+        Snackbar.Add("Erfolgreich gelöscht.");
+    }
+
+    private async Task ChangesCommitted()
+    {
+        SeatingConfigurationService.UpdatedExternal(true);
     }
 
 }

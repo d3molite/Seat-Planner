@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using Planner.Data.Enums;
 
 namespace Planner.Data.Models;
 
 public class SeatingRow
 {
-    
+    private int _startingSeat;
+
     public SeatingRow(string letter, int startingSeat)
     {
         Letter = letter;
@@ -12,7 +14,15 @@ public class SeatingRow
         RegenerateSeats();
     }
 
-    public int StartingSeat { get; set; }
+    public int StartingSeat
+    {
+        get => _startingSeat;
+        set
+        {
+            _startingSeat = value;
+            RegenerateSeats();
+        }
+    }
 
     [NotMapped]
     private int MaxSeat => StartingSeat + 39;
@@ -22,8 +32,11 @@ public class SeatingRow
     [NotMapped]
     public List<Seat> Seats { get; set; } = new();
 
-    private void RegenerateSeats()
+    public CarpetPosition CarpetPosition { get; set; } = CarpetPosition.None;
+
+    public void RegenerateSeats()
     {
+        Seats = new();
         for (int i = StartingSeat; i <= MaxSeat; i++)
         {
             Seats.Add(new Seat(i, Letter){SeatNumber = i, RowLetter = Letter});

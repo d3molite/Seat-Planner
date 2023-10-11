@@ -1,0 +1,49 @@
+﻿@using Planner.Data.Models
+
+<MudCard>
+    <MudStack Class="m-3" Spacing="3">
+        <MudTextField @bind-Value="Attendee.NickName" Label="Nickname"/>
+        <MudTextField @bind-Value="Attendee.FirstName" Label="Vorname"/>
+        <MudSelect @bind-Value="Attendee.NumberOfSeats" Label="Anzahl Seats">
+            <MudSelectItem Value="1"/>
+            <MudSelectItem Value="2"/>
+        </MudSelect>
+        <MudStack>
+            <MudSelect @bind-Value="Attendee.LeftSeat" Label="@FirstSeatTitle">
+                <MudSelectItem Value="@("Beginner")"/>
+                <MudSelectItem Value="@("Expert")"/>
+            </MudSelect>
+            <MudSelect @bind-Value="Attendee.RightSeat" Label="Rechter Seat" Style="@SecondSeatVisible">
+                <MudSelectItem Value="@("Beginner")"/>
+                <MudSelectItem Value="@("Expert")"/>
+            </MudSelect>
+        </MudStack>
+        <MudStack Row="true">
+            <MudButton OnClick="@Ok">Ok</MudButton>
+            <MudButton OnClick="@Cancel">Abbrechen</MudButton>
+        </MudStack>
+    </MudStack>
+</MudCard>
+
+@code {
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public Attendee Attendee { get; set; }
+
+    public string FirstSeatTitle => Attendee.NumberOfSeats > 1 ? "Linker Seat" : "Seat Typ";
+
+    public string SecondSeatVisible => Attendee.NumberOfSeats > 1 ? "" : "display: none";
+    
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(Attendee));
+    }
+
+}

@@ -3,12 +3,49 @@ using System.Text.Json.Serialization;
 using Planner.Data.Interfaces;
 using Planner.Data.Models;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using MudBlazor;
 
 namespace Planner.Data.Services;
 
 public class SeatingConfigurationService : ISeatingConfigurationService
 {
 	private readonly ProtectedLocalStorage _storage;
+
+	public event EventHandler? SeatingDataUpdated;
+
+	public void UpdatedExternal(bool regenerateRows = false)
+	{
+		CollectOrphanedAttendees();
+
+		if (regenerateRows)
+		{
+			foreach (var row in Rows)
+			{
+				row.RegenerateSeats();
+			}
+		}
+		
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
+	}
+
+	public void CollectOrphanedAttendees()
+	{
+		var orphaned = Attendees.Where(x => !IsPlaced(x));
+
+		foreach (var attendee in orphaned)
+		{
+			attendee.SeatIdentifier = "";
+		}
+	}
+
+	private bool IsPlaced(Attendee attendee)
+	{
+		return Rows.Exists(row => row.Seats.Exists(x => x.SeatIdentifier == attendee.SeatIdentifier));
+	}
+
+	public List<Attendee> Attendees { get; set; } = new();
+
+	public List<SeatingRow> Rows { get; set; } = new();
 
 	public SeatingConfigurationService(ProtectedLocalStorage storage)
 	{
@@ -17,22 +54,111 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 	
 	public async Task Clear()
 	{
+		Attendees = new();
+		Rows = new();
 		await _storage.DeleteAsync("rows");
 		await _storage.DeleteAsync("attendees");
+		await Save();
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
 	}
 
-	public async Task Save(List<SeatingRow> rows, List<Attendee> attendees)
+	public void RemoveRow(SeatingRow row)
 	{
-		await _storage.SetAsync("rows", SerializeRows(rows));
-		await _storage.SetAsync("attendees", SerializeAttendees(attendees));
+		Rows.Remove(row);
+		CollectOrphanedAttendees();
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
 	}
 
-	public async Task<ProtectedBrowserStorageResult<string>> LoadRows()
+	public void RemoveAttendee(Attendee attendee)
+	{
+		Attendees.Remove(attendee);
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
+	}
+
+	public async Task Save(ISnackbar? snackbar = null)
+	{
+		await _storage.SetAsync("rows", SerializeRows(Rows));
+		await _storage.SetAsync("attendees", SerializeAttendees(Attendees));
+		snackbar?.Add("Daten gespeichert.", Severity.Success);
+	}
+
+	public async Task Load(ISnackbar snackbar)
+	{
+		await SetRows(snackbar);
+		await SetAttendees(snackbar);
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
+	}
+
+	public void AddAttendee()
+	{
+		Attendees.Add(new Attendee(){NickName = "New Player"});
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
+	}
+
+	public void AddRow()
+	{
+		Rows.Add(new SeatingRow("A", 1));
+		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
+	}
+
+	private async Task SetRows(ISnackbar snackbar)
+	{
+		var rowResult = await LoadRows();
+		
+		if (rowResult is {Success: true, Value: not null})
+		{
+			try
+			{
+				Rows = DeserializeRows(rowResult.Value);
+
+				foreach (var row in Rows)
+				{
+					row.RegenerateSeats();
+				}
+				
+				snackbar.Add("Reihen geladen.", Severity.Success);
+
+				return;
+			}
+			catch (Exception ex)
+			{
+				// Do nothing
+			}
+		}
+		
+		Rows = new List<SeatingRow>();
+		snackbar.Add("Fehler beim Laden. Reihen neu initialisiert.", Severity.Error);
+	}
+	
+	private async Task SetAttendees(ISnackbar snackbar)
+	{
+		var attendeeResult = await LoadAttendees();
+		
+		if (attendeeResult is {Success: true, Value: not null})
+		{
+			try
+			{
+				Attendees = DeserializeAttendees(attendeeResult.Value);
+				snackbar.Add("Teilnehmer geladen.", Severity.Success);
+
+				return;
+			}
+			catch (Exception ex)
+			{
+				// Do nothing
+			}
+		}
+		
+		Attendees = new List<Attendee>();
+		snackbar.Add("Fehler beim Laden. Teilnehmer neu initialisiert.", Severity.Error);
+	}
+
+	private async Task<ProtectedBrowserStorageResult<string>> LoadRows()
 	{
 		return await _storage.GetAsync<string>("rows");
 	}
 
-	public async Task<ProtectedBrowserStorageResult<string>> LoadAttendees()
+	private async Task<ProtectedBrowserStorageResult<string>> LoadAttendees()
 	{
 		return await _storage.GetAsync<string>("attendees");
 	}
@@ -57,12 +183,12 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 		return JsonSerializer.Serialize(attendees);
 	}
 
-	public List<SeatingRow> DeserializeRows(string input)
+	private List<SeatingRow> DeserializeRows(string input)
 	{
 		return JsonSerializer.Deserialize<List<SeatingRow>>(input)!;
 	}
 	
-	public List<Attendee> DeserializeAttendees(string input)
+	private List<Attendee> DeserializeAttendees(string input)
 	{
 		return JsonSerializer.Deserialize<List<Attendee>>(input)!;
 	}

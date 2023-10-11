@@ -1,34 +1,62 @@
 ﻿@using Planner.Data.Models
+@using Planner.Data.Interfaces
+@using Planner.Data.Enums
 
-<MudLayout Class="d-flex flex-column h-100 w-100 align-content-center" Style="overflow-y: scroll;">
+<MudStack Class="h-100 w-100" AlignItems="AlignItems.Center" Style="overflow-y: scroll;" Spacing="0">
                             
     @* Add an entire Seating Row Here *@
     @foreach (var row in Rows)
     {
-        <MudStack Class="w-100 flex-wrap" Style="height: 250px; margin: 5rem 0;" Row="true" Spacing="3" Reverse="true" Justify="Justify.Center">
-            @for (var i = 1; i <= row.Seats.Count() - 1; i += 2)
-            {
-                var secondSeat = row.Seats[i - 1];
-                var firstSeat = row.Seats[i];
+        <MudStack Class="w-100" Style="margin: 4rem 0;" AlignItems="AlignItems.Center">
+            <MudPaper Style="@TopCarpetStyle(row)">
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="h-100">
+                    <MudText Color="Color.Default">Relaxzone</MudText>
+                </MudStack>
+            </MudPaper>
+            <MudStack Class="w-100 flex-wrap" Row="true" Spacing="2" Reverse="true" Justify="Justify.Center">
+                @for (var i = 1; i <= row.Seats.Count() - 1; i += 2)
+                {
+                    var secondSeat = row.Seats[i - 1];
+                    var firstSeat = row.Seats[i];
 
-                @* One Table *@
-                <SeatingTable FirstSeat="@firstSeat" SecondSeat="@secondSeat" Row="@row" Attendees="@Attendees"/>
-            }
+                    @* One Table *@
+                    <SeatingTable FirstSeat="@firstSeat" SecondSeat="@secondSeat" Row="@row" Attendees="@Attendees"/>
+                }
+            </MudStack>
+            <MudPaper Style="@BottomCarpetStyle(row)">
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="h-100">
+                    <MudText Color="Color.Default">Relaxzone</MudText>
+                </MudStack>
+            </MudPaper>
         </MudStack>
     }
-</MudLayout>
+</MudStack>
 
 @code {
 
-    public async Task Refresh()
+    protected override async Task OnInitializedAsync()
     {
-        await InvokeAsync(StateHasChanged);
+        await base.OnInitializedAsync();
+        SeatingConfigurationService.SeatingDataUpdated += async(_, _) => await InvokeAsync(StateHasChanged);
     }
-    
-    [Parameter]
-    public List<SeatingRow> Rows { get; set; }
-    
-    [Parameter]
-    public List<Attendee> Attendees { get; set; }
 
+    private string TopCarpetStyle(SeatingRow row)
+    {
+        return row.CarpetPosition is CarpetPosition.Both or CarpetPosition.North ? CarpetDefault : "display: none";
+    }
+
+    private string BottomCarpetStyle(SeatingRow row)
+    {
+        return row.CarpetPosition is CarpetPosition.Both or CarpetPosition.South ? CarpetDefault : "display: none";
+    }
+
+    private string CarpetDefault => "background: #33DD1144; height: 45px !important; width: 99%";
+
+    private List<SeatingRow> Rows => SeatingConfigurationService.Rows;
+
+    private List<Attendee> Attendees => SeatingConfigurationService.Attendees;
+    
+    [Parameter]
+    public ISeatingConfigurationService SeatingConfigurationService { get; set; }
+    
 }
