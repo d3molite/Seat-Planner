@@ -43,6 +43,7 @@
     protected override async Task OnInitializedAsync()
     {
         SeatingConfigurationService.SeatingDataUpdated += async(_, _) => await InvokeAsync(StateHasChanged);
+        
         await base.OnInitializedAsync();
     }
 

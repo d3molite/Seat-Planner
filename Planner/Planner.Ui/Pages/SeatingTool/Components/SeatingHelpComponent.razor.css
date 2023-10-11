@@ -1,0 +1,40 @@
+﻿.main-help{
+    position: absolute;
+    float: none;
+    top:0;
+    left:0;
+    width: 100vw;
+    height: 100vh !important;
+    z-index: 100;
+    background: rgba(0.2, 0.2, 0.2, 0.3);
+    backdrop-filter: blur(1px);
+}
+
+.row-help{
+    position: absolute;
+    top: 20vh;
+    right: 250px;
+}
+
+.members-help{
+    position: absolute;
+    bottom: 24vh;
+    right: 250px;
+}
+
+.actions-help{
+    position: absolute;
+    bottom: 1vh;
+    right: 250px;
+}
+
+.drag-drop-help{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 60vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

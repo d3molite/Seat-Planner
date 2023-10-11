@@ -6,12 +6,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planner.Ui", "Planner.Ui\Pl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Planner.Data", "Planner.Data\Planner.Data.csproj", "{A57CCBFA-1575-493C-A57F-60FEB8E5AB98}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{4E75950C-6106-4C74-8DD1-EF444791BB57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4E75950C-6106-4C74-8DD1-EF444791BB57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E75950C-6106-4C74-8DD1-EF444791BB57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20FC5EDD-11BC-402F-B3CE-365600643D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{20FC5EDD-11BC-402F-B3CE-365600643D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20FC5EDD-11BC-402F-B3CE-365600643D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU

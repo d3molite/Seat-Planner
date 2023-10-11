@@ -3,10 +3,37 @@
 @inject ISeatingConfigurationService SeatingConfigurationService
 @inject ISnackbar Snackbar
 
-
-<h3>Index</h3>
-
-
+<MudStack Class="w-100 h-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
+    <MudStack Class="w-50" Justify="Justify.Center">
+        <MudPaper Class="p-4">
+            <MudStack>
+                <MudText Typo="Typo.h6">Willkommen bei pLAN, dem Planungstool für LAN Parties</MudText>
+                <MudText>Hier kannst du einfach einen Sitzplan für dich und deine Clan Mitglieder erstellen</MudText>
+                <MudText>Dieses Tool ist Optimiert für Desktop-Clients mit Bildschirmen in 16:9 oder 16:10-Auflösung. <br/>
+                    In anderen Auflösungen kann es potentiell zu Anzeigefehlern kommen.</MudText>
+                <MudText>
+                    Für eine kurze Einleitung, benutze im Planer den <MudIcon Icon="@Icons.Material.Outlined.QuestionMark"/> - Button in der oberen rechten Bildschirmecke
+                </MudText>
+                <MudText Typo="Typo.body2">
+                    Alle Daten werden im Lokalen Storage in deinem Browser gespeichert.
+                    Der Server verarbeitet die Daten nur, um sie dir auf der Website anzeigen zu können.
+                </MudText>
+                <MudText Typo="Typo.body2">
+                    Solltest du Fragen, oder Anregungen haben, schreibe mir gerne eine
+                    <MudLink Href="mailto://tobi.brinke@gmail.com?subject=Anmerkungen zu pLAN!">Mail</MudLink>
+                </MudText>
+            </MudStack>
+        </MudPaper>
+        <MudPaper Class="p-4">
+            <MudStack>
+                <MudText Typo="Typo.h6">Geplante Features</MudText>
+                <MudStack>
+                    <MudText>- Autosave</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+    </MudStack>
+</MudStack>
 
 @code {
 

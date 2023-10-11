@@ -1,0 +1,63 @@
+﻿@if (Show)
+{
+    <div class="main-help">
+        <div class="row-help">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="p-1 rounded-lg border-2 border-dashed mud-border-lines-default bg-dark">
+                <MudText Typo="Typo.h5">Hier kannst du Sitzreihen anlegen, bearbeiten und löschen.</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Large"/>
+            </MudStack>
+        </div>
+        <div class="members-help">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="p-1 rounded-lg border-2 border-dashed mud-border-lines-default bg-dark">
+                <MudText Typo="Typo.h5">Hier kannst du Clan Mitglieder anlegen, bearbeiten und löschen.</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Large"/>
+            </MudStack>
+        </div>
+        <div class="actions-help">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="p-1 rounded-lg border-2 border-dashed mud-border-lines-default bg-dark">
+                <MudStack>
+                    <MudText Typo="Typo.body1">
+                        Denk daran, deine Konfiguration zu speichern. <br/>
+                        Da diese nur Lokal in deinem Browser gespeichert wird, gehen Änderungen<br/>
+                          beim Schließen potentiell verloren.
+                    </MudText>
+                    @* <MudText Typo="Typo.body2"> *@
+                    @*     (Ein Autosave erfolgt jede Minute) *@
+                    @* </MudText> *@
+                    <MudText Typo="Typo.body2">
+                        Solltest du den Browser schließen, oder den Tab neu laden, benutze einfach den "Laden" Button <br/> 
+                        um deinen letzten Stand zu laden 
+                    </MudText>
+                </MudStack>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowRight" Size="Size.Large"/>
+            </MudStack>
+        </div>
+         <div class="drag-drop-help">
+            <MudStack AlignItems="AlignItems.Start" Justify="Justify.Center" Class="p-3 rounded-lg border-2 border-dashed mud-border-lines-default bg-dark">
+                <MudText Typo="Typo.h5">
+                    In diesem Bereich kannst du per Drag and Drop <br/> 
+                    die Clanmitglieder auf die Sitzplätze verteilen
+                </MudText>
+                <MudText>
+                    Doppelt breite Seats können nur auf dem linken Sitz platziert werden <br/>
+                    und nur, wenn kein einzelner Seat an dem Tisch belegt ist.
+                </MudText>
+                <MudText>
+                    Einzelne Seats können überall dort platziert werden wo kein doppelter Seat ist. <br/>
+                    Einzelne Seats lassen sich per Drag and Drop einfach tauschen.
+                </MudText>
+                <MudText Typo="Typo.body2">
+                    Sitzplätze erscheinen, sobald du Reihen angelegt hast. <br/>
+                    Solltest du eine Reihe mit Personen löschen, wandern diese zurück in die Mitgliederübersicht.
+                </MudText>
+            </MudStack>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public bool Show { get; set; }
+
+}

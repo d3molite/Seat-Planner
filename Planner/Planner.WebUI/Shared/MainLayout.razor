@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+@using Planner.Ui.Pages.SeatingTool.Components
+
+@inject NavigationManager NavManager
 
 <MudThemeProvider IsDarkMode="true"/>
 <MudDialogProvider/>
@@ -8,14 +11,20 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudText Typo="Typo.h5" Class="ml-3">pLAN</MudText>
-        <MudStack Row="true" Justify="Justify.SpaceEvenly">
-            <MudNavLink Href="/Planner">zum Planer</MudNavLink>
+        <MudStack Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Row="true" Class="w-100">
+            <MudNavLink Href="/" Style="width: 10%;">
+                <MudText Typo="Typo.h5" Class="ml-3">pLAN</MudText>
+            </MudNavLink>
+            <MudStack Row="true" Justify="Justify.SpaceEvenly">
+                <MudNavLink Href="/Planner" Style="@LinkStyle">zum Planer</MudNavLink>
+            </MudStack>
+            <MudSpacer/>
+            <MudNavLink Href="/Imprint" Style="width: 10%;">Impressum</MudNavLink>
+            <MudIconButton Icon="@Icons.Material.Outlined.QuestionMark" @onclick="ToggleHelp" Style="z-index: 99999" Style="@HelpStyle"/>
         </MudStack>
-        <MudSpacer/>
-        <MudIconButton Icon="@Icons.Material.Outlined.QuestionMark"></MudIconButton>
     </MudAppBar>
     <MudMainContent Style="height: 100%">
+        <SeatingHelpComponent Show="_showHelp"/>
         <div class="main-content d-flex flex-column">
             @Body
         </div>
@@ -23,4 +32,22 @@
 </MudLayout>
 
 @code {
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        NavManager.LocationChanged += (_, _) => InvokeAsync(StateHasChanged);
+    }
+
+    private bool _showHelp = false;
+
+    private void ToggleHelp()
+    {
+        _showHelp = !_showHelp;
+    }
+
+    private string LinkStyle => !NavManager.Uri.Contains("/Planner") ? "" : "display: none !important";
+    
+    private string HelpStyle => NavManager.Uri.Contains("/Planner") ? "" : "display: none !important";
+
 }

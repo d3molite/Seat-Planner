@@ -20,5 +20,9 @@
     <ItemGroup>
       <ProjectReference Include="..\Planner.Data\Planner.Data.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\" />
+    </ItemGroup>
     
 </Project>
