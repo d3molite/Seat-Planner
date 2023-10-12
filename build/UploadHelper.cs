@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Renci.SshNet;
 using WinSCP;
 using Session = WinSCP.Session;
@@ -26,6 +27,7 @@ public class UploadHelper
             Credentials.WorkingDirectory);
 
         Console.WriteLine($"Uploaded {res.Transfers.Count} files {res.IsSuccess}");
+        if (!res.IsSuccess) Console.WriteLine(res.Failures.First().Message);
         Console.WriteLine(new string('#', 50));
     }
 

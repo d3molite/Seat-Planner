@@ -20,7 +20,7 @@
             </MudStack>
             <MudSpacer/>
             <MudNavLink Href="/Imprint" Style="width: 10%;">Impressum</MudNavLink>
-            <MudIconButton Icon="@Icons.Material.Outlined.QuestionMark" @onclick="ToggleHelp" Style="z-index: 99999" Style="@HelpStyle"/>
+            <MudIconButton Icon="@Icons.Material.Outlined.QuestionMark" @onclick="ToggleHelp" Style="@HelpStyle"/>
         </MudStack>
     </MudAppBar>
     <MudMainContent Style="height: 100%">
@@ -48,6 +48,6 @@
 
     private string LinkStyle => !NavManager.Uri.Contains("/Planner") ? "" : "display: none !important";
     
-    private string HelpStyle => NavManager.Uri.Contains("/Planner") ? "" : "display: none !important";
+    private string HelpStyle => NavManager.Uri.Contains("/Planner") ? "z-index: 99999" : "display: none !important";
 
 }

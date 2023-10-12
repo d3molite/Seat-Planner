@@ -19,7 +19,7 @@ class Build : NukeBuild
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath TestsDirectory => RootDirectory / "tests";
-    AbsolutePath OutputDirectory => RootDirectory / ".." / "DiscordApiPub";
+    AbsolutePath OutputDirectory => RootDirectory / "publish";
 
     Target Clean => _ => _
         .Before(Restore)
