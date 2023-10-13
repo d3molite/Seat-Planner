@@ -24,9 +24,9 @@ public interface ISeatingConfigurationService
 
 	public void AddRow();
 
-	public Task Export();
+	public Task<string> Export();
 
-	public Task Import();
+	public Task Import(string importData, ISnackbar snackbar);
 
 	public Task Clear();
 

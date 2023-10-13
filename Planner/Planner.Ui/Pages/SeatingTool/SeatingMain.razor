@@ -1,6 +1,7 @@
 ﻿@page "/Planner"
 @using Planner.Data.Models
 @using Planner.Data.Interfaces
+@using Planner.Ui.Helpers
 @using Planner.Ui.Pages.SeatingTool.Components
 @using Planner.Ui.Pages.SeatingTool.Dialog
 
@@ -13,8 +14,8 @@
     T="Attendee"
     Items="Attendees"
     ItemsSelector="@((item, dropzone) => item.SeatIdentifier == dropzone)"
-    ItemDropped="ItemUpdated"
-    CanDrop="(attendee, s) => CanDrop(attendee, s)"
+    ItemDropped="_dropZoneHelper.ItemUpdated"
+    CanDrop="(attendee, s) => _dropZoneHelper.CanDrop(attendee, s)"
     NoDropClass="mud-border-error"
     CanDropClass="mud-border-success">
     <ChildContent>
@@ -40,9 +41,12 @@
 
 @code {
 
+    private DropZoneHelper _dropZoneHelper = null!;
+    
     protected override async Task OnInitializedAsync()
     {
         SeatingConfigurationService.SeatingDataUpdated += async(_, _) => await InvokeAsync(StateHasChanged);
+        _dropZoneHelper = new DropZoneHelper(SeatingConfigurationService);
         
         await base.OnInitializedAsync();
     }
@@ -53,59 +57,7 @@
     }
     
     private List<Attendee> Attendees => SeatingConfigurationService.Attendees;
-
-    private void ItemUpdated(MudItemDropInfo<Attendee> dropItem)
-    {
-        if (SeatsInZone(dropItem.DropzoneIdentifier))
-        {
-            var seat = FirstSeatInZone(dropItem.DropzoneIdentifier);
-            seat.SeatIdentifier = dropItem.Item.SeatIdentifier;
-        }
-        
-        dropItem.Item.SeatIdentifier = dropItem.DropzoneIdentifier;
-    }
-
-    private bool CanDrop(Attendee item, string dropName)
-    {
-        if (dropName == "") return true;
-
-        if (SeatsInZone(dropName))
-        {
-            var seat = FirstSeatInZone(dropName);
-            return seat.NumberOfSeats == 1 && item.NumberOfSeats == 1;
-        }
-        
-        switch (item.NumberOfSeats)
-        {
-            case > 1 when !IsEvenSeat(dropName):
-            case > 1 when SeatsInNextZone(dropName):
-                return false;
-            default:
-                return true;
-        }
-    }
-
-    private bool SeatsInZone(string zone)
-    {
-        return Attendees.Any(x => x.SeatIdentifier == zone);
-    }
-
-    private Attendee FirstSeatInZone(string zone)
-    {
-        return Attendees.First(x => x.SeatIdentifier == zone);
-    }
-
-    private bool SeatsInNextZone(string zone)
-    {
-        var items = zone.Split("-");
-        var nextZone = $"{items[0]}-{int.Parse(items[1]) + -1}";
-        return Attendees.Any(x => x.SeatIdentifier == nextZone);
-    }
-
-    private static bool IsEvenSeat(string zone)
-    {
-        return int.Parse(zone.Split("-")[1]) % 2 == 0;
-    }
+    
     
     private async Task EditAttendee(Attendee attendee)
     {

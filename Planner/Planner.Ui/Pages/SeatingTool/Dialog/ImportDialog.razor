@@ -1,0 +1,102 @@
+﻿@using Planner.Data.Validation
+@using Planner.Data.IO
+@inject ISnackbar Snackbar;
+
+<MudCard Class="p-5 w-100">
+    <MudFileUpload 
+        T="IReadOnlyList<IBrowserFile>" 
+        OnFilesChanged="OnInputFileChanged" 
+        MaximumFileCount="1"
+        Hidden="false" 
+        Class="flex-1" 
+        InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" 
+        InputStyle="opacity:0"
+                       @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+            <ButtonTemplate>
+                <MudPaper Height="300px" Outlined="true" Class="@DragClass">
+                    <MudText Typo="Typo.h6">Klicken, oder Datei ablegen.</MudText>
+                    @if(File is not null)
+                    {
+                        <MudChip Color="Color.Dark" Text="@File.Name" />
+                    }
+                </MudPaper>
+            </ButtonTemplate>
+        </MudFileUpload>
+        <MudToolBar DisableGutters="true" Class="gap-4">
+            <MudButton OnClick="Upload" Disabled="@(File == null)" Color="Color.Primary" Variant="Variant.Filled">Importieren</MudButton>
+            <MudButton OnClick="Clear" Disabled="@(File == null)" Color="Color.Error" Variant="Variant.Filled">Löschen</MudButton>
+        </MudToolBar>
+</MudCard>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    
+    private readonly FileHandler FileHandler = new ();
+    
+    private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
+    private string DragClass = DefaultDragClass;
+    private IBrowserFile? File;
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+        
+        if (!FileHandler.VerifyFileExtension(e.File))
+        {
+            Snackbar.Add("Dieser Dateityp ist nicht erlaubt.", Severity.Error);
+            return;
+        }
+        
+        File = e.File;
+    }
+
+    private async Task Clear()
+    {
+        File = null;
+        ClearDragClass();
+        await Task.Delay(100);
+    }
+    
+    private async Task Upload()
+    {
+        
+        if (File is null) return;
+
+        if (!FileHandler.VerifyFileExtension(File))
+        {
+            Snackbar.Add("Dieser Dateityp ist nicht erlaubt.", Severity.Error);
+            return;
+        }
+        
+        if (!await FileHandler.VerifyFileHeader(File))
+        {
+            Snackbar.Add("Fehler beim Verifizieren der Dateiintegrität.", Severity.Error);
+            return;
+        }
+
+        var inputData = await FileHandler.GetFileContent(File);
+
+        try
+        {
+            var decrypted = await Cryptography.DecryptAsync(inputData);
+            MudDialog.Close(DialogResult.Ok(decrypted));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Datei konnte nicht gelesen werden.", Severity.Error);
+            MudDialog.Cancel();
+        }
+        
+    }
+
+    private void SetDragClass()
+    {
+        DragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        DragClass = DefaultDragClass;
+    }
+}
+    

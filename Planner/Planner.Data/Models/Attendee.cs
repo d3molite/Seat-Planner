@@ -19,6 +19,8 @@ public class Attendee
 	public string? RightSeat { get; set; }
 	
 	public string SeatIdentifier { get; set; } = "";
+	
+	public string? MemberGroup { get; set; }
 
 	public void UpdateSelf(Attendee a)
 	{

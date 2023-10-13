@@ -2,10 +2,9 @@
 **/bin/**
 **/obj/**
 
-
 app.db*
 
-build/Credentials.cs
+**/Credentials.cs
 
 publish/**
 

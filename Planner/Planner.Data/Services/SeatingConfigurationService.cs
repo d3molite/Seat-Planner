@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Planner.Data.Interfaces;
 using Planner.Data.Models;
@@ -163,14 +164,42 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 		return await _storage.GetAsync<string>("attendees");
 	}
 
-	public async Task Export()
+	public async Task<string> Export()
 	{
-		throw new NotImplementedException();
+		var sb = new StringBuilder();
+		
+		sb.Append(
+			JsonSerializer.Serialize(
+				new DataTransfer()
+				{
+					Rows = Rows,
+					Attendees = Attendees
+				}
+			)
+		);
+
+		return sb.ToString();
 	}
 
-	public async Task Import()
+	public async Task Import(string importData, ISnackbar snackbar)
 	{
-		throw new NotImplementedException();
+		try
+		{
+			var result = JsonSerializer.Deserialize<DataTransfer>(importData);
+
+			if (result is null) return;
+
+			Rows = result.Rows;
+			Attendees = result.Attendees;
+			
+			SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
+
+			snackbar.Add("Daten Importiert.", Severity.Success);
+		}
+		catch
+		{
+			snackbar.Add("Daten konnten nicht gelesen werden.", Severity.Error);
+		}
 	}
 
 	private string SerializeRows(List<SeatingRow> rows)

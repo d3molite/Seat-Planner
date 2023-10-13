@@ -8,50 +8,58 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<MudPaper Elevation="1" Style="width: 220px" Class="h-100">
-    <MudStack Class="h-100" Spacing="2" Justify="Justify.SpaceBetween">
+<MudPaper Elevation="1" Style="width: 230px" Class="h-100">
+    <MudStack Class="h-100 w-100" Spacing="2" Justify="Justify.SpaceBetween">
         <MudText Typo="Typo.body2" Align="Align.Center" Class="pt-3">Konfiguration</MudText>
         <MudDivider Class="flex-grow-0"/>
-        <MudStack Class="flex-grow-1" Style="max-height: 40%;">
+        <MudStack Class="flex-grow-1 pt-2 pb-2" Style="max-height: 35%;" Spacing="1" Justify="Justify.SpaceAround">
             <MudText MudText Typo="Typo.body2" Align="Align.Center">Sitzreihen (@Rows?.Count)</MudText>
-            <MudDataGrid 
-                T="SeatingRow" 
-                Items="Rows" 
-                Class="w-100 flex-grow-1" 
-                EditMode="DataGridEditMode.Form" 
-                ReadOnly="false" Dense="true" EditTrigger="DataGridEditTrigger.Manual" CommittedItemChanges="ChangesCommitted">
-                <Columns>
-                    <TemplateColumn Title="Reihe">
-                        <EditTemplate>
-                            <MudStack>
-                                <MudTextField @bind-Value="context.Item.Letter" Label="Buchstabe (Reihe)"/>
-                                <MudNumericField T="int" @bind-Value="context.Item.StartingSeat" Label="Startnummer der Reihe"/>
-                                <MudSelect @bind-Value="context.Item.CarpetPosition" Label="Relaxzone?">
-                                    <MudSelectItem Value="CarpetPosition.None">Keine</MudSelectItem>
-                                    <MudSelectItem Value="CarpetPosition.North">Oben</MudSelectItem>
-                                    <MudSelectItem Value="CarpetPosition.South">Unten</MudSelectItem>
-                                    <MudSelectItem Value="CarpetPosition.Both">Beides</MudSelectItem>
-                                </MudSelect>
-                            </MudStack>
-                        </EditTemplate>
-                        <CellTemplate>
-                            <MudText>@context.Item.Letter-@context.Item.StartingSeat</MudText>
-                        </CellTemplate>
-                    </TemplateColumn>
-                    <TemplateColumn>
-                        <CellTemplate>
-                            <MudIconButton Icon="@Icons.Material.Outlined.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@context.Actions.StartEditingItemAsync"/>
-                            <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Size="Size.Small" @onclick="() => RemoveRow(context.Item)"/>
-                        </CellTemplate>
-                    </TemplateColumn>
-                </Columns>
-            </MudDataGrid>
+            <MudStack Class="w-100" Style="max-height: 85%; height: 85%; overflow-y: scroll;">
+                <MudDataGrid 
+                    T="SeatingRow" 
+                    Items="Rows" 
+                    Class="flex-grow-1"
+                    EditMode="DataGridEditMode.Form" 
+                    HorizontalScrollbar="true"
+                    ReadOnly="false" 
+                    Dense="true" 
+                    EditTrigger="DataGridEditTrigger.Manual" 
+                    CommittedItemChanges="ChangesCommitted">
+                    <Columns>
+                        <TemplateColumn Title="Name">
+                            <EditTemplate>
+                                <MudStack>
+                                    <MudTextField @bind-Value="context.Item.Letter" Label="Buchstabe (Reihe)"/>
+                                    <MudNumericField T="int" @bind-Value="context.Item.StartingSeat" Label="Startnummer der Reihe"/>
+                                    <MudSelect @bind-Value="context.Item.CarpetPosition" Label="Relaxzone?">
+                                        <MudSelectItem Value="CarpetPosition.None">Keine</MudSelectItem>
+                                        <MudSelectItem Value="CarpetPosition.North">Oben</MudSelectItem>
+                                        <MudSelectItem Value="CarpetPosition.South">Unten</MudSelectItem>
+                                        <MudSelectItem Value="CarpetPosition.Both">Beides</MudSelectItem>
+                                    </MudSelect>
+                                </MudStack>
+                            </EditTemplate>
+                            <CellTemplate>
+                                <MudText>@context.Item.Letter-@context.Item.StartingSeat</MudText>
+                            </CellTemplate>
+                        </TemplateColumn>
+                        <TemplateColumn>
+                            <CellTemplate>
+                                <MudStack Row="true" Spacing="0" Style="width: 80%; margin: 0 -0.5rem;">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" Color="Color.Primary" Size="Size.Small" OnClick="@context.Actions.StartEditingItemAsync"/>
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" Size="Size.Small" @onclick="() => RemoveRow(context.Item)"/>
+                                </MudStack>
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                </MudDataGrid>
+                </MudStack>
             <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" Variant="Variant.Outlined" @onclick="AddNewRow">Neu</MudButton>
         </MudStack>
         <MudDivider Class="flex-grow-0"/>
-        <MudStack Class="flex-grow-1" Style="max-height: 40%;">
+        <MudStack Class="flex-grow-1 pt-2 pb-2" Style="max-height: 40%;" Justify="Justify.SpaceAround">
             <MudText MudText Typo="Typo.body2" Align="Align.Center">Clan Mitglieder (@Attendees?.Count)</MudText>
-            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll;">
+            <MudDropZone T="Attendee" Identifier="" Class="flex-grow-1 rounded-lg border-1 border-dashed mud-border-lines-default" Style="overflow-y: scroll; height:90%;">
                 <ItemRenderer>
                     <MudStack Class="w-100 p-1" Row="true" AlignItems="AlignItems.Center">
                         <MudStack Spacing="1" Class="w-75">
@@ -75,13 +83,20 @@
             <MudButton Color="Color.Primary" Size="Size.Small" Style="margin: 0 1rem;" Variant="Variant.Outlined" @onclick="AddNewAttendee">Neu</MudButton>
         </MudStack>
         <MudDivider Class="flex-grow-0"/>
-        <MudStack Row="true" Class="p-2">
-            <MudButton Color="Color.Success" Style="" Variant="Variant.Outlined" @onclick="Save">Speichern</MudButton>
-            <MudButton Color="Color.Primary" Style="" Variant="Variant.Outlined" @onclick="Load">Laden</MudButton>
+        <MudStack Class="p-2" Justify="Justify.SpaceAround">
+             <MudStack Row="true" Justify="Justify.SpaceEvenly">
+                <MudButton Color="Color.Success" Variant="Variant.Outlined" @onclick="Save" Size="Size.Small" Style="width: 40%;">Speichern</MudButton>
+                <MudButton Color="Color.Primary" Variant="Variant.Outlined" @onclick="Load" Size="Size.Small" Style="width: 40%;">Laden</MudButton>
+            </MudStack>
+            <MudStack Row="true" Justify="Justify.SpaceEvenly">
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" @onclick="Export" Size="Size.Small" Style="width: 40%;">Export</MudButton>
+                <MudButton Color="Color.Default" Variant="Variant.Outlined" @onclick="Import" Size="Size.Small" Style="width: 40%;">Import</MudButton>
+            </MudStack>
+            <MudStack Row="true" Justify="Justify.Center">
+                <MudButton Color="Color.Error" Variant="Variant.Outlined" @onclick="Clear" Style="width: 92%;">Alles Löschen</MudButton>
+            </MudStack>
         </MudStack>
-        <MudStack Row="true" Class="pb-3 pt-0" Justify="Justify.Center">
-            <MudButton Color="Color.Error" Variant="Variant.Outlined" @onclick="Clear">Alles Löschen</MudButton>
-        </MudStack>
+       
     </MudStack>
 </MudPaper>
 
@@ -138,6 +153,35 @@
     private async Task Load()
     {
         await SeatingConfigurationService.Load(Snackbar);
+    }
+
+    private async Task Import()
+    {
+        var dialog = await DialogService.ShowAsync<ImportDialog>();
+        
+        var result = await dialog.Result;
+        if (result.Canceled) return;
+
+        await SeatingConfigurationService.Import((string)result.Data, Snackbar);
+    }
+
+    private async Task Export()
+    {
+        var exportResult = await SeatingConfigurationService.Export();
+
+        var parameters = new DialogParameters<ExportDialog>
+        {
+            {
+                x => x.ExportString, exportResult
+            }
+        };
+        
+        var dialog = await DialogService.ShowAsync<ExportDialog>("Export", parameters);
+        
+        var result = await dialog.Result;
+        if (result.Canceled) return;
+        
+        
     }
 
     private async Task AddNewAttendee()
