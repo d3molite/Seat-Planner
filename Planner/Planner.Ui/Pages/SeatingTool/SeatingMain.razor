@@ -4,6 +4,7 @@
 @using Planner.Ui.Helpers
 @using Planner.Ui.Pages.SeatingTool.Components
 @using Planner.Ui.Pages.SeatingTool.Dialog
+@using System.Text
 
 @inject ISeatingConfigurationService SeatingConfigurationService
 @inject ISnackbar Snackbar
@@ -25,7 +26,7 @@
         </MudStack>
     </ChildContent>
     <ItemRenderer>
-        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden pt-2" Spacing="1" @ondblclick="@(() => EditAttendee(context))">
+        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden pt-2 pb-2" Style="@GetGroupingStyle(context.MemberGroup)" Spacing="1" @ondblclick="@(() => EditAttendee(context))">
             <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.NickName</MudText>
             <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.FirstName</MudText>
             <MudStack Class="w-100 pl-4 pr-4" Row="true" Justify="SelectJustify(context)">
@@ -42,12 +43,12 @@
 @code {
 
     private DropZoneHelper _dropZoneHelper = null!;
-    
+
     protected override async Task OnInitializedAsync()
     {
-        SeatingConfigurationService.SeatingDataUpdated += async(_, _) => await InvokeAsync(StateHasChanged);
+        SeatingConfigurationService.SeatingDataUpdated += async (_, _) => await InvokeAsync(StateHasChanged);
         _dropZoneHelper = new DropZoneHelper(SeatingConfigurationService);
-        
+
         await base.OnInitializedAsync();
     }
 
@@ -55,14 +56,13 @@
     {
         return attendee.NumberOfSeats == 1 ? Justify.Center : Justify.SpaceAround;
     }
-    
+
     private List<Attendee> Attendees => SeatingConfigurationService.Attendees;
-    
-    
+
     private async Task EditAttendee(Attendee attendee)
     {
         var dialogAttendee = attendee.Clone();
-        
+
         var parameters = new DialogParameters<AttendeeEditDialog>
         {
             {
@@ -74,8 +74,51 @@
         var result = await dialog.Result;
 
         if (result.Canceled) return;
-        
-        attendee.UpdateSelf((Attendee)result.Data);
+
+        attendee.UpdateSelf((Attendee) result.Data);
         SeatingConfigurationService.UpdatedExternal();
     }
+
+    private string GetGroupingStyle(string? contextMemberGroup)
+    {
+        var sb = new StringBuilder();
+
+        sb.Append("border-radius: 0 0 8px 8px;");
+        
+        switch (contextMemberGroup)
+        {
+            case "A":
+                sb.Append(GetBackground("#880000"));
+                break;
+            case "B":
+                sb.Append(GetBackground("#884400"));
+                break;
+            case "C":
+                sb.Append(GetBackground("#448800"));
+                break;
+            case "D":
+                sb.Append(GetBackground("#008800"));
+                break;
+            case "E":
+                sb.Append(GetBackground("#008844"));
+                break;
+            case "F":
+                sb.Append(GetBackground("#004488"));
+                break;
+            case "G":
+                sb.Append(GetBackground("#000088"));
+                break;
+            case "H":
+                sb.Append(GetBackground("#448844"));
+                break;
+            case "I":
+                sb.Append(GetBackground("#884488"));
+                break;
+        }
+
+        return sb.ToString();
+    }
+    
+    private static string GetBackground(string color) => $"background: {color}22";
+
 }

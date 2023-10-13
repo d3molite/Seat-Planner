@@ -1,22 +1,8 @@
-﻿<MudPaper Width="250px" Class="py-3" Elevation="0">
-     <MudNavMenu>
-         <MudText Typo="Typo.h6" Class="px-4">Seating</MudText>
-         <MudText Typo="Typo.body2" Class="px-4 mud-text-secondary">Plan Your Clan</MudText>
-         <MudDivider Class="my-2"/>
-         <MudNavLink Href="/events">Events</MudNavLink>
-         <MudNavLink Href="/attendees">Attendees</MudNavLink>
-         <MudNavLink Href="/seating">Seating Tool</MudNavLink>
-     </MudNavMenu>
- </MudPaper>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-
-}
+﻿<MudNavMenu>
+    <MudNavLink Href="/">Startseite</MudNavLink>
+    <MudNavGroup Title="Planer" Expanded="true">
+        <MudNavLink Href="/Planner">zum Planer</MudNavLink>
+        <MudNavLink Href="/Changelog">Changelog</MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Href="/Imprint">Impressum</MudNavLink>
+</MudNavMenu>

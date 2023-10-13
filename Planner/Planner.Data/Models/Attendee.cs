@@ -33,6 +33,7 @@ public class Attendee
 		SeatIdentifier = a.SeatIdentifier;
 		LeftSeat = a.LeftSeat;
 		RightSeat = a.RightSeat;
+		MemberGroup = a.MemberGroup;
 	}
 
 	public Attendee Clone()
@@ -47,7 +48,8 @@ public class Attendee
 			NumberOfSeats = NumberOfSeats,
 			SeatIdentifier = SeatIdentifier,
 			LeftSeat = LeftSeat,
-			RightSeat = RightSeat
+			RightSeat = RightSeat,
+			MemberGroup = MemberGroup
 		};
 	}
 }

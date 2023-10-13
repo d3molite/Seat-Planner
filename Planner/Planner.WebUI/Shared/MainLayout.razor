@@ -11,18 +11,15 @@
 
 <MudLayout>
     <MudAppBar Elevation="1">
-        <MudStack Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Row="true" Class="w-100">
-            <MudNavLink Href="/" Style="width: 10%;">
-                <MudText Typo="Typo.h5" Class="ml-3">pLAN</MudText>
-            </MudNavLink>
-            <MudStack Row="true" Justify="Justify.SpaceEvenly">
-                <MudNavLink Href="/Planner" Style="@LinkStyle">zum Planer</MudNavLink>
-            </MudStack>
-            <MudSpacer/>
-            <MudNavLink Href="/Imprint" Style="width: 10%;">Impressum</MudNavLink>
-            <MudIconButton Icon="@Icons.Material.Outlined.QuestionMark" @onclick="ToggleHelp" Style="@HelpStyle"/>
-        </MudStack>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+        <MudImage Src="\img\pLAN Logo.png" Class="h-100"/>
+        <MudText Typo="Typo.body2">v0.1.2</MudText>
+        <MudSpacer/>
+        <MudIconButton Icon="@Icons.Material.Outlined.QuestionMark" @onclick="ToggleHelp" Style="@HelpStyle"/>
     </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <NavMenu/>
+    </MudDrawer>
     <MudMainContent Style="height: 100%">
         <SeatingHelpComponent Show="_showHelp"/>
         <div class="main-content d-flex flex-column">
@@ -39,15 +36,20 @@
         NavManager.LocationChanged += (_, _) => InvokeAsync(StateHasChanged);
     }
 
-    private bool _showHelp = false;
+    private bool _showHelp;
 
     private void ToggleHelp()
     {
         _showHelp = !_showHelp;
     }
-
-    private string LinkStyle => !NavManager.Uri.Contains("/Planner") ? "" : "display: none !important";
     
+    bool _drawerOpen;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
     private string HelpStyle => NavManager.Uri.Contains("/Planner") ? "z-index: 99999" : "display: none !important";
 
 }

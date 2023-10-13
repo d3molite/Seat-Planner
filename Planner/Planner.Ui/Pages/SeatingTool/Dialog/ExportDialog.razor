@@ -3,10 +3,10 @@
 
 <MudCard Class="p-5">
     <MudStack>
-        <MudText Typo="Typo.h6">
-            Um deine aktuelle Konfiguration herunterzuladen, klicke hier.
+        <MudText>
+            Klicke unten um deine aktuelle Konfiguration herunterzuladen.
         </MudText>
-        <MudIconButton Icon="@Icons.Material.Outlined.Download" @onclick="DownloadExportFile"></MudIconButton>
+        <MudIconButton Icon="@Icons.Material.Outlined.Download" Variant="Variant.Outlined" Color="Color.Success" @onclick="DownloadExportFile"></MudIconButton>
     </MudStack>
 </MudCard>
 @code {
@@ -16,7 +16,6 @@
 
     private async Task DownloadExportFile()
     {
-        var handler = new FileHandler();
         using var fileStream = await FileHandler.CreateExportFileStream(ExportString);
         
         const string fileName = "export.pLAN";

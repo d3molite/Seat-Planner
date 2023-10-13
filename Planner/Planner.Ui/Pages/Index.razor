@@ -1,10 +1,8 @@
 ﻿@page "/"
 @using Planner.Data.Interfaces
-@inject ISeatingConfigurationService SeatingConfigurationService
-@inject ISnackbar Snackbar
 
 <MudStack Class="w-100 h-100" Justify="Justify.Center" AlignItems="AlignItems.Center">
-    <MudStack Class="w-50" Justify="Justify.Center">
+    <MudStack Class="" Justify="Justify.Center">
         <MudPaper Class="p-4">
             <MudStack>
                 <MudText Typo="Typo.h6">Willkommen bei pLAN, dem Planungstool für LAN Parties</MudText>
@@ -15,16 +13,22 @@
                     Für eine kurze Einleitung, benutze im Planer den <MudIcon Icon="@Icons.Material.Outlined.QuestionMark"/> - Button in der oberen rechten Bildschirmecke
                 </MudText>
                 <MudText Typo="Typo.body2">
-                    Alle Daten werden im Lokalen Storage in deinem Browser gespeichert.
+                    Alle Daten werden im Lokalen Storage in deinem Browser gespeichert. <br/>
                     Der Server verarbeitet die Daten nur, um sie dir auf der Website anzeigen zu können.
                 </MudText>
                 <MudText Typo="Typo.body2">
                     Solltest du Fragen, oder Anregungen haben, schreibe mir gerne eine
                     <MudLink Href="mailto://tobi.brinke@gmail.com?subject=Anmerkungen zu pLAN!">Mail</MudLink>
                 </MudText>
-                <MudText Typo="Typo.h5">
-                    <MudNavLink Href="/Planner">ZUM PLANER</MudNavLink>
-                </MudText>
+                <MudNavLink Href="/Planner" Class="justify-content-center">
+                    <MudText Typo="Typo.h5">
+                        PLANER ÖFFNEN
+                    </MudText>
+                </MudNavLink>
+                <MudStack Row="true" Justify="Justify.SpaceEvenly">
+                    <MudLink Href="/Imprint">Impressum</MudLink>
+                    <MudLink Href="/Changelot">Changelog</MudLink>
+                </MudStack>
             </MudStack>
         </MudPaper>
         <MudPaper Class="p-4">

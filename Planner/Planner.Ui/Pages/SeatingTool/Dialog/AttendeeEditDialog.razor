@@ -1,7 +1,7 @@
 ﻿@using Planner.Data.Models
 
 <MudCard>
-    <MudStack Class="m-3" Spacing="3">
+    <MudStack Class="m-4" Spacing="3">
         <MudTextField @bind-Value="Attendee.NickName" Label="Nickname"/>
         <MudTextField @bind-Value="Attendee.FirstName" Label="Vorname"/>
         <MudSelect @bind-Value="Attendee.NumberOfSeats" Label="Anzahl Seats">
@@ -18,9 +18,17 @@
                 <MudSelectItem Value="@("Expert")"/>
             </MudSelect>
         </MudStack>
-        <MudStack Row="true">
-            <MudButton OnClick="@Ok">Ok</MudButton>
-            <MudButton OnClick="@Cancel">Abbrechen</MudButton>
+        <MudStack>
+            <MudSelect @bind-Value="Attendee.MemberGroup" Label="Gruppierung">
+                @foreach (var group in Groups)
+                {
+                    <MudSelectItem Value="@(group)"/>
+                }
+            </MudSelect>
+        </MudStack>
+        <MudStack Row="true" Class="mt-3" Justify="Justify.SpaceBetween">
+            <MudButton OnClick="@Cancel" Color="Color.Error">Abbrechen</MudButton>
+            <MudButton OnClick="@Ok" Color="Color.Success">Ok</MudButton>
         </MudStack>
     </MudStack>
 </MudCard>
@@ -45,5 +53,18 @@
     {
         MudDialog.Close(DialogResult.Ok(Attendee));
     }
+
+    private List<string> Groups => new()
+    {
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "G",
+        "H",
+        "I"
+    };
 
 }
