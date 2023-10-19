@@ -13,11 +13,11 @@
                     <MudText Color="Color.Default">Relaxzone</MudText>
                 </MudStack>
             </MudPaper>
-            <MudStack Class="w-100 flex-wrap" Row="true" Spacing="2" Reverse="true" Justify="Justify.Center">
+            <MudStack Class="w-100" Row="true" Spacing="2" Reverse="false" Justify="Justify.Center" Style="flex-flow: row wrap-reverse">
                 @for (var i = 1; i <= row.Seats.Count() - 1; i += 2)
                 {
-                    var secondSeat = row.Seats[i - 1];
-                    var firstSeat = row.Seats[i];
+                    var secondSeat = row.Seats[i];
+                    var firstSeat = row.Seats[i - 1];
 
                     @* One Table *@
                     <SeatingTable FirstSeat="@firstSeat" SecondSeat="@secondSeat" Row="@row" Attendees="@Attendees"/>

@@ -1,4 +1,6 @@
-﻿namespace Planner.Data.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace Planner.Data.Models;
 
 public class Attendee
 {
@@ -21,6 +23,17 @@ public class Attendee
 	public string SeatIdentifier { get; set; } = "";
 	
 	public string? MemberGroup { get; set; }
+
+	[JsonIgnore]
+	public int SeatIdentifierNumber => !string.IsNullOrEmpty(SeatIdentifier) ? int.Parse(SeatIdentifier.Split('-')[1]) : 0;
+
+	public void SetSeatNumber(int number)
+	{
+		if (string.IsNullOrEmpty(SeatIdentifier)) return;
+
+		var seat = SeatIdentifier.Split('-')[0];
+		SeatIdentifier = $"{seat}-{number}";
+	}
 
 	public void UpdateSelf(Attendee a)
 	{

@@ -74,13 +74,13 @@ public sealed class DropZoneHelper
 	
 	private static bool IsLeftSeat(string zone)
 	{
-		return int.Parse(zone.Split("-")[1]) % 2 == 0;
+		return int.Parse(zone.Split("-")[1]) % 2 != 0;
 	}
 	
 	private bool SeatAtThisOrNextZone(string zone)
 	{
 		var items = zone.Split("-");
-		var nextZone = $"{items[0]}-{int.Parse(items[1]) + -1}";
+		var nextZone = $"{items[0]}-{int.Parse(items[1]) + 1}";
 		return Attendees.Any(x => x.SeatIdentifier == nextZone);
 	}
 

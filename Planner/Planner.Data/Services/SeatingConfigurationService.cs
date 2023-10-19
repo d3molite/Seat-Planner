@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Planner.Data.Interfaces;
@@ -48,6 +49,8 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 
 	public List<SeatingRow> Rows { get; set; } = new();
 
+	public string PlannerVersion { get; set; } = "0.1.3";
+
 	public SeatingConfigurationService(ProtectedLocalStorage storage)
 	{
 		_storage = storage;
@@ -78,6 +81,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 
 	public async Task Save(ISnackbar? snackbar = null)
 	{
+		await _storage.SetAsync("version", PlannerVersion);
 		await _storage.SetAsync("rows", SerializeRows(Rows));
 		await _storage.SetAsync("attendees", SerializeAttendees(Attendees));
 		snackbar?.Add("Daten gespeichert.", Severity.Success);
@@ -87,6 +91,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 	{
 		await SetRows(snackbar);
 		await SetAttendees(snackbar);
+		await SetVersion(snackbar);
 		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
 	}
 
@@ -154,6 +159,37 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 		snackbar.Add("Fehler beim Laden. Teilnehmer neu initialisiert.", Severity.Error);
 	}
 
+	private async Task SetVersion(ISnackbar snackbar)
+	{
+		var versionResult = await LoadVersion();
+
+		if (versionResult is {Success: true, Value: not null})
+		{
+			PlannerVersion = versionResult.Value;
+		}
+
+		else
+		{
+			snackbar.Add("Legacy version erkannt. Sitzplan wird neu berechnet.", Severity.Info);
+			RecalculatePositions();
+		}
+	}
+
+	private void RecalculatePositions()
+	{
+		foreach (var attendee in Attendees)
+		{
+			var row = Rows.Find(x => x.Seats.Exists(y => y.SeatIdentifier == attendee.SeatIdentifier));
+			if (row is null) continue;
+
+			var maxRowNumber = row.Seats.Select(x => x.SeatNumber).Max() + 1;
+			var number = attendee.SeatIdentifierNumber;
+			var newNumber = maxRowNumber - number;
+			
+			attendee.SetSeatNumber(newNumber);
+		}
+	}
+
 	private async Task<ProtectedBrowserStorageResult<string>> LoadRows()
 	{
 		return await _storage.GetAsync<string>("rows");
@@ -162,6 +198,11 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 	private async Task<ProtectedBrowserStorageResult<string>> LoadAttendees()
 	{
 		return await _storage.GetAsync<string>("attendees");
+	}
+
+	private async Task<ProtectedBrowserStorageResult<string>> LoadVersion()
+	{
+		return await _storage.GetAsync<string>("version");
 	}
 
 	public async Task<string> Export()
