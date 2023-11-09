@@ -9,14 +9,17 @@
             <MudSelectItem Value="2"/>
         </MudSelect>
         <MudStack>
-            <MudSelect @bind-Value="Attendee.LeftSeat" Label="@FirstSeatTitle">
+            <MudSelect @bind-Value="@Attendee.LeftSeat" Label="@FirstSeatTitle">
                 <MudSelectItem Value="@("Beginner")"/>
                 <MudSelectItem Value="@("Expert")"/>
             </MudSelect>
-            <MudSelect @bind-Value="Attendee.RightSeat" Label="Rechter Seat" Style="@SecondSeatVisible">
+            <MudSelect @bind-Value="@Attendee.RightSeat" Label="Rechter Seat" Style="@SecondSeatVisible">
                 <MudSelectItem Value="@("Beginner")"/>
                 <MudSelectItem Value="@("Expert")"/>
             </MudSelect>
+            <MudCheckBox T="bool" @bind-Checked="Attendee.IsLegend" Style="@CanBeLegend">
+                Legend Upgrade
+            </MudCheckBox>
         </MudStack>
         <MudStack>
             <MudSelect @bind-Value="Attendee.MemberGroup" Label="Gruppierung">
@@ -43,6 +46,18 @@
     public string FirstSeatTitle => Attendee.NumberOfSeats > 1 ? "Linker Seat" : "Seat Typ";
 
     public string SecondSeatVisible => Attendee.NumberOfSeats > 1 ? "" : "display: none";
+
+    public string CanBeLegend
+    {
+        get
+        {
+            if (Attendee.NumberOfSeats <= 1) return "display:none;";
+            if (Attendee.LeftSeat != "Expert" && Attendee.RightSeat != "Expert") return "display:none;";
+            
+            return "";
+        }
+        
+    }
     
     private void Cancel()
     {
@@ -64,7 +79,22 @@
         "F",
         "G",
         "H",
-        "I"
+        "I",
+        "J",
+        "K",
+        "L",
     };
+
+    private void LeftSeatUpdated(string e)
+    {
+        Attendee.LeftSeat = e;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void RightSeatUpdated(string e)
+    {
+        Attendee.RightSeat = e;
+        InvokeAsync(StateHasChanged);
+    }
 
 }

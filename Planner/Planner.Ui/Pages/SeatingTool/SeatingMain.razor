@@ -26,14 +26,20 @@
         </MudStack>
     </ChildContent>
     <ItemRenderer>
-        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden pt-2 pb-2" Style="@GetGroupingStyle(context.MemberGroup)" Spacing="1" @ondblclick="@(() => EditAttendee(context))">
+        <MudStack AlignItems="AlignItems.Center" Class="h-100 w-100 overflow-hidden pt-2 pb-2" Style="@GetGroupingStyle(context)" Spacing="1" @ondblclick="@(() => EditAttendee(context))">
             <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.NickName</MudText>
             <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.FirstName</MudText>
             <MudStack Class="w-100 pl-4 pr-4" Row="true" Justify="SelectJustify(context)">
-                <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.LeftSeat</MudText>
-                @if (@context.NumberOfSeats > 1)
+                @if (!context.IsLegend)
                 {
-                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.RightSeat</MudText>
+                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.LeftSeat</MudText>
+                    @if (context.NumberOfSeats > 1)
+                    {
+                        <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.RightSeat</MudText>
+                    }
+                }
+                else{
+                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0 fw-bold">LEGEND</MudText>
                 }
             </MudStack>
         </MudStack>
@@ -79,8 +85,10 @@
         SeatingConfigurationService.UpdatedExternal();
     }
 
-    private string GetGroupingStyle(string? contextMemberGroup)
+    private string GetGroupingStyle(Attendee? context)
     {
+        var contextMemberGroup = context.MemberGroup;
+        
         var sb = new StringBuilder();
 
         sb.Append("border-radius: 0 0 8px 8px;");
@@ -114,11 +122,23 @@
             case "I":
                 sb.Append(GetBackground("#884488"));
                 break;
+            case "J":
+                sb.Append(GetBackground("#22DD22"));
+                break;
+            case "K":
+                sb.Append(GetBackground("#DD2222"));
+                break;
+            case "L":
+                sb.Append(GetBackground("#2222DD"));
+                break;
         }
+
+        if (context.IsLegend)
+            sb.Append($"background-image: url({"/img/legend.png"});");
 
         return sb.ToString();
     }
     
-    private static string GetBackground(string color) => $"background: {color}22";
+    private static string GetBackground(string color) => $"background: {color}22;";
 
 }
