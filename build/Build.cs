@@ -66,19 +66,19 @@ class Build : NukeBuild
         });
 
 
-    Target Upload => _ => _
-        .DependsOn(Publish)
-        .Executes(() =>
-        {
-            UploadHelper.UploadBuild(OutputDirectory);
-            UploadHelper.RestartApp();
-        });
+    // Target Upload => _ => _
+    //     .DependsOn(Publish)
+    //     .Executes(() =>
+    //     {
+    //         UploadHelper.UploadBuild(OutputDirectory);
+    //         UploadHelper.RestartApp();
+    //     });
 
     /// Support plugins are available for:
     /// - JetBrains ReSharper        https://nuke.build/resharper
     /// - JetBrains Rider            https://nuke.build/rider
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
-    public static int Main() => Execute<Build>(x => x.Upload);
+    public static int Main() => Execute<Build>(x => x.Publish);
 
 }

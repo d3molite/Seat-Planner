@@ -1,0 +1,14 @@
+﻿version: "3.3"
+services:
+  plan:
+    image: hub.demolite.de/demoreg/plan
+    container_name: plan
+    restart: always
+    env_file:
+      - e.env
+    build:
+      context: .
+      dockerfile: Planner.WebUI/Dockerfile
+    ports:
+      - "8081:80"
+      - "8082:443"
