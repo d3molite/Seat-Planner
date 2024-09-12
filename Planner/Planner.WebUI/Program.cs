@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
+builder.WebHost.UseStaticWebAssets();
 builder.Services.AddMudServices();
 builder.Services.AddScoped<ISeatingConfigurationService, SeatingConfigurationService>();
 

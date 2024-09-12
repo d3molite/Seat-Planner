@@ -9,3 +9,5 @@ app.db*
 publish/**
 
 .nuke/**
+
+*.env

@@ -30,16 +30,10 @@
             <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.NickName</MudText>
             <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.FirstName</MudText>
             <MudStack Class="w-100 pl-4 pr-4" Row="true" Justify="SelectJustify(context)">
-                @if (!context.IsLegend)
+                <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.LeftSeat</MudText>
+                @if (context.NumberOfSeats > 1)
                 {
-                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.LeftSeat</MudText>
-                    @if (context.NumberOfSeats > 1)
-                    {
-                        <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.RightSeat</MudText>
-                    }
-                }
-                else{
-                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0 fw-bold">LEGEND</MudText>
+                    <MudText Typo="Typo.body2" Class="m-0 h-25 p-0">@context.RightSeat</MudText>
                 }
             </MudStack>
         </MudStack>
@@ -88,48 +82,71 @@
     private string GetGroupingStyle(Attendee? context)
     {
         var contextMemberGroup = context.MemberGroup;
-        
+
         var sb = new StringBuilder();
 
         sb.Append("border-radius: 0 0 8px 8px;");
-        
+
         switch (contextMemberGroup)
         {
             case "A":
                 sb.Append(GetBackground("#880000"));
+
                 break;
+
             case "B":
                 sb.Append(GetBackground("#884400"));
+
                 break;
+
             case "C":
                 sb.Append(GetBackground("#448800"));
+
                 break;
+
             case "D":
                 sb.Append(GetBackground("#008800"));
+
                 break;
+
             case "E":
                 sb.Append(GetBackground("#008844"));
+
                 break;
+
             case "F":
                 sb.Append(GetBackground("#004488"));
+
                 break;
+
             case "G":
                 sb.Append(GetBackground("#000088"));
+
                 break;
+
             case "H":
                 sb.Append(GetBackground("#448844"));
+
                 break;
+
             case "I":
                 sb.Append(GetBackground("#884488"));
+
                 break;
+
             case "J":
                 sb.Append(GetBackground("#22DD22"));
+
                 break;
+
             case "K":
                 sb.Append(GetBackground("#DD2222"));
+
                 break;
+
             case "L":
                 sb.Append(GetBackground("#2222DD"));
+
                 break;
         }
 
@@ -138,7 +155,7 @@
 
         return sb.ToString();
     }
-    
+
     private static string GetBackground(string color) => $"background: {color}22;";
 
 }

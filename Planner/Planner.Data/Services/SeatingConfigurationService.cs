@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Planner.Data.Interfaces;
 using Planner.Data.Models;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -26,7 +24,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 				row.RegenerateSeats();
 			}
 		}
-		
+
 		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
 	}
 
@@ -55,7 +53,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 	{
 		_storage = storage;
 	}
-	
+
 	public async Task Clear()
 	{
 		Attendees = new();
@@ -97,7 +95,13 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 
 	public void AddAttendee()
 	{
-		Attendees.Add(new Attendee(){NickName = "New Player"});
+		Attendees.Add(
+			new Attendee()
+			{
+				NickName = "New Player"
+			}
+		);
+
 		SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
 	}
 
@@ -109,52 +113,66 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 
 	private async Task SetRows(ISnackbar snackbar)
 	{
-		var rowResult = await LoadRows();
-		
-		if (rowResult is {Success: true, Value: not null})
+		try
 		{
-			try
-			{
-				Rows = DeserializeRows(rowResult.Value);
+			var rowResult = await LoadRows();
 
-				foreach (var row in Rows)
+			if (rowResult is {Success: true, Value: not null})
+			{
+				try
 				{
-					row.RegenerateSeats();
-				}
-				
-				snackbar.Add("Reihen geladen.", Severity.Success);
+					Rows = DeserializeRows(rowResult.Value);
 
-				return;
-			}
-			catch (Exception ex)
-			{
-				// Do nothing
+					foreach (var row in Rows)
+					{
+						row.RegenerateSeats();
+					}
+
+					snackbar.Add("Reihen geladen.", Severity.Success);
+
+					return;
+				}
+				catch (Exception ex)
+				{
+					// Do nothing
+				}
 			}
 		}
-		
+		catch (Exception ex)
+		{
+			// do nothing
+		}
+
 		Rows = new List<SeatingRow>();
 		snackbar.Add("Fehler beim Laden. Reihen neu initialisiert.", Severity.Error);
 	}
-	
+
 	private async Task SetAttendees(ISnackbar snackbar)
 	{
-		var attendeeResult = await LoadAttendees();
-		
-		if (attendeeResult is {Success: true, Value: not null})
+		try
 		{
-			try
-			{
-				Attendees = DeserializeAttendees(attendeeResult.Value);
-				snackbar.Add("Teilnehmer geladen.", Severity.Success);
+			var attendeeResult = await LoadAttendees();
 
-				return;
-			}
-			catch (Exception ex)
+			if (attendeeResult is {Success: true, Value: not null})
 			{
-				// Do nothing
+				try
+				{
+					Attendees = DeserializeAttendees(attendeeResult.Value);
+					snackbar.Add("Teilnehmer geladen.", Severity.Success);
+
+					return;
+				}
+				catch (Exception ex)
+				{
+					// Do nothing
+				}
 			}
 		}
-		
+		catch (Exception ex)
+		{
+			// do nothing
+		}
+
 		Attendees = new List<Attendee>();
 		snackbar.Add("Fehler beim Laden. Teilnehmer neu initialisiert.", Severity.Error);
 	}
@@ -180,12 +198,13 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 		foreach (var attendee in Attendees)
 		{
 			var row = Rows.Find(x => x.Seats.Exists(y => y.SeatIdentifier == attendee.SeatIdentifier));
+
 			if (row is null) continue;
 
 			var maxRowNumber = row.Seats.Select(x => x.SeatNumber).Max() + 1;
 			var number = attendee.SeatIdentifierNumber;
 			var newNumber = maxRowNumber - number;
-			
+
 			attendee.SetSeatNumber(newNumber);
 		}
 	}
@@ -208,7 +227,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 	public async Task<string> Export()
 	{
 		var sb = new StringBuilder();
-		
+
 		sb.Append(
 			JsonSerializer.Serialize(
 				new DataTransfer()
@@ -232,7 +251,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 
 			Rows = result.Rows;
 			Attendees = result.Attendees;
-			
+
 			SeatingDataUpdated?.Invoke(this, EventArgs.Empty);
 
 			snackbar.Add("Daten Importiert.", Severity.Success);
@@ -257,7 +276,7 @@ public class SeatingConfigurationService : ISeatingConfigurationService
 	{
 		return JsonSerializer.Deserialize<List<SeatingRow>>(input)!;
 	}
-	
+
 	private List<Attendee> DeserializeAttendees(string input)
 	{
 		return JsonSerializer.Deserialize<List<Attendee>>(input)!;
